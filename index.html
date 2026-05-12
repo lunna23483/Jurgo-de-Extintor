@@ -326,6 +326,73 @@ body::before{
   from{opacity:0;transform:translateX(18px);}
   to{opacity:1;transform:translateX(0);}
 }
+
+/* ── INTRO SCREEN ── */
+.intro-dots{
+  display:flex;justify-content:center;gap:8px;margin-bottom:24px;
+}
+.intro-dot{
+  width:8px;height:8px;border-radius:99px;
+  background:#2e2e2e;transition:all .3s;
+}
+.intro-dot.active{background:var(--orange);width:24px;}
+.intro-card{
+  background:var(--card);
+  border:1px solid #2a2a2a;
+  border-radius:20px;
+  padding:28px 24px;
+  margin-bottom:20px;
+  position:relative;overflow:hidden;
+  text-align:center;
+  animation:slideIn .35s cubic-bezier(.4,0,.2,1);
+}
+.intro-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  border-radius:20px 20px 0 0;
+}
+.intro-card.water-card::before{background:linear-gradient(90deg,#1565c0,#42a5f5,transparent);}
+.intro-card.co2-card::before{background:linear-gradient(90deg,#37474f,#90a4ae,transparent);}
+.intro-card.pqs-card::before{background:linear-gradient(90deg,#e65100,#ffb74d,transparent);}
+.intro-card.co2k-card::before{background:linear-gradient(90deg,#4a148c,#ce93d8,transparent);}
+
+.intro-big-icon{font-size:64px;display:block;margin-bottom:16px;animation:flicker 2s ease-in-out infinite;}
+.intro-ext-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:32px;letter-spacing:3px;margin-bottom:6px;
+}
+.intro-ext-name.water-txt{color:#42a5f5;}
+.intro-ext-name.co2-txt{color:#90a4ae;}
+.intro-ext-name.pqs-txt{color:#ffb74d;}
+.intro-ext-name.co2k-txt{color:#ce93d8;}
+
+.intro-tagline{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;}
+.intro-desc{font-size:14px;line-height:1.7;color:#bbb;margin-bottom:20px;text-align:left;}
+.intro-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:4px;}
+.intro-tag{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 12px;border-radius:99px;}
+.tag-yes{background:rgba(76,175,80,.15);color:#81c784;border:1px solid rgba(76,175,80,.3);}
+.tag-no{background:rgba(244,67,54,.1);color:#e57373;border:1px solid rgba(244,67,54,.25);}
+
+.intro-nav{display:flex;gap:12px;}
+.intro-prev-btn,.intro-next-btn,.intro-start-btn,.intro-skip-btn{
+  border:none;border-radius:14px;
+  padding:14px 20px;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:18px;letter-spacing:2px;
+  cursor:pointer;transition:all .25s;
+}
+.intro-prev-btn{background:#2a2a2a;color:var(--muted);flex:0 0 auto;}
+.intro-prev-btn:hover{background:#333;color:var(--text);}
+.intro-next-btn{background:linear-gradient(135deg,var(--orange),#ff8800);color:white;flex:1;}
+.intro-next-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,85,0,.35);}
+.intro-start-btn{background:linear-gradient(135deg,#2e7d32,#43a047);color:white;flex:1;}
+.intro-start-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(46,125,50,.35);}
+.intro-skip-btn{
+  width:100%;background:transparent;
+  border:1px solid #2e2e2e!important;
+  color:var(--muted);font-size:13px;letter-spacing:2px;
+  margin-top:10px;padding:11px;
+}
+.intro-skip-btn:hover{color:var(--text);border-color:#444!important;background:#1a1a1a;}
 </style>
 </head>
 <body>
@@ -352,8 +419,16 @@ body::before{
     <div class="streak-badge">🔥 Racha <span id="streakVal">0</span></div>
   </div>
 
+  <!-- INTRO SCREEN -->
+  <div id="introScreen">
+    <div class="intro-dots" id="introDots"></div>
+    <div id="introCard"></div>
+    <div class="intro-nav" id="introNav"></div>
+    <button class="intro-skip-btn" onclick="startGame()">⚡ Saltar al juego</button>
+  </div>
+
   <!-- GAME AREA -->
-  <div id="gameArea">
+  <div id="gameArea" style="display:none">
 
     <!-- FIRE CARD -->
     <div class="fire-card" id="fireCard">
@@ -383,100 +458,191 @@ body::before{
 </div>
 
 <script>
+/* ── AUDIO ── */
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+
+function playCorrect(){
+  const t = AC.currentTime;
+  [523,659,784].forEach((f,i)=>{
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.frequency.value=f; o.type='sine';
+    g.gain.setValueAtTime(0,t+i*.1);
+    g.gain.linearRampToValueAtTime(.18,t+i*.1+.03);
+    g.gain.linearRampToValueAtTime(0,t+i*.1+.18);
+    o.start(t+i*.1); o.stop(t+i*.1+.2);
+  });
+}
+
+function playWrong(){
+  const t = AC.currentTime;
+  [220,180].forEach((f,i)=>{
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.frequency.value=f; o.type='sawtooth';
+    g.gain.setValueAtTime(0,t+i*.12);
+    g.gain.linearRampToValueAtTime(.12,t+i*.12+.04);
+    g.gain.linearRampToValueAtTime(0,t+i*.12+.2);
+    o.start(t+i*.12); o.stop(t+i*.12+.25);
+  });
+}
+
+function playFanfare(){
+  const t = AC.currentTime;
+  const notes=[523,659,784,1047];
+  notes.forEach((f,i)=>{
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.frequency.value=f; o.type='sine';
+    g.gain.setValueAtTime(0,t+i*.13);
+    g.gain.linearRampToValueAtTime(.2,t+i*.13+.05);
+    g.gain.linearRampToValueAtTime(0,t+i*.13+.3);
+    o.start(t+i*.13); o.stop(t+i*.13+.35);
+  });
+}
+
+/* ── INTRO DATA ── */
+const INTRO_CARDS = [
+  {
+    cls:"water-card", icon:"💧", nameCls:"water-txt", name:"EXTINTOR DE AGUA",
+    tagline:"Clase A · Sólidos combustibles",
+    desc:"El extintor de agua enfría el material en combustión, eliminando el calor y apagando el fuego. Es el más común para materiales sólidos como madera, papel, tela y cartón.",
+    yes:["✅ Madera y papel","✅ Tela y cartón","✅ Plásticos sólidos"],
+    no:["🚫 Fuegos eléctricos","🚫 Aceites y grasas","🚫 Líquidos inflamables"]
+  },
+  {
+    cls:"co2-card", icon:"❄️", nameCls:"co2-txt", name:"EXTINTOR CO₂",
+    tagline:"Clase B/C · Eléctrico y líquidos",
+    desc:"El dióxido de carbono desplaza el oxígeno y sofoca el fuego sin dejar residuo. Es dieléctrico (no conduce electricidad), por lo que es seguro en equipos energizados.",
+    yes:["✅ Equipos eléctricos","✅ Solventes y líquidos","✅ Laboratorios"],
+    no:["🚫 Materiales sólidos","🚫 Espacios abiertos (se dispersa)","🚫 Metales en combustión"]
+  },
+  {
+    cls:"pqs-card", icon:"🧡", nameCls:"pqs-txt", name:"EXTINTOR PQS",
+    tagline:"Clase A/B · Polvo Químico Seco",
+    desc:"El Polvo Químico Seco interrumpe la reacción química del fuego. Es versátil y muy eficaz, pero deja residuo en polvo que puede dañar equipos delicados. Ideal en vehículos y talleres.",
+    yes:["✅ Combustibles líquidos","✅ Vehículos","✅ Talleres industriales"],
+    no:["🚫 Equipos eléctricos delicados","🚫 Cocinas con aceite","🚫 Ambientes limpios o laboratorios"]
+  },
+  {
+    cls:"co2k-card", icon:"🍳", nameCls:"co2k-txt", name:"EXTINTOR CLASE K",
+    tagline:"Clase K · Aceites y grasas de cocina",
+    desc:"Diseñado específicamente para aceites y grasas vegetales o animales a alta temperatura. Aplica un agente que saponifica (solidifica) la grasa y sofoca las llamas sin provocar salpicaduras explosivas.",
+    yes:["✅ Freidoras industriales","✅ Cocinas de restaurant","✅ Aceites y grasas calientes"],
+    no:["🚫 NUNCA usar agua en aceite","🚫 Equipos eléctricos","🚫 Solventes inflamables"]
+  }
+];
+
+let introIdx = 0;
+
+function renderIntro(){
+  // dots
+  const dots = document.getElementById('introDots');
+  dots.innerHTML = INTRO_CARDS.map((_,i)=>
+    `<div class="intro-dot${i===introIdx?' active':''}"></div>`
+  ).join('');
+
+  // card
+  const c = INTRO_CARDS[introIdx];
+  document.getElementById('introCard').innerHTML = `
+    <div class="intro-card ${c.cls}">
+      <span class="intro-big-icon">${c.icon}</span>
+      <div class="intro-ext-name ${c.nameCls}">${c.name}</div>
+      <div class="intro-tagline">${c.tagline}</div>
+      <div class="intro-desc">${c.desc}</div>
+      <div class="intro-tags">
+        ${c.yes.map(t=>`<span class="intro-tag tag-yes">${t}</span>`).join('')}
+        ${c.no.map(t=>`<span class="intro-tag tag-no">${t}</span>`).join('')}
+      </div>
+    </div>
+  `;
+
+  // nav
+  const isLast = introIdx === INTRO_CARDS.length - 1;
+  document.getElementById('introNav').innerHTML = `
+    ${introIdx > 0
+      ? `<button class="intro-prev-btn" onclick="introGo(-1)">← Anterior</button>`
+      : ''}
+    ${isLast
+      ? `<button class="intro-start-btn" onclick="startGame()">🔥 ¡Comenzar!</button>`
+      : `<button class="intro-next-btn" onclick="introGo(1)">Siguiente →</button>`}
+  `;
+}
+
+function introGo(dir){
+  introIdx = Math.min(Math.max(introIdx + dir, 0), INTRO_CARDS.length - 1);
+  renderIntro();
+}
+
+function startGame(){
+  document.getElementById('introScreen').style.display = 'none';
+  document.getElementById('gameArea').style.display = 'block';
+  init();
+}
+
+/* ── GAME DATA ── */
 const ALL_QUESTIONS = [
   {
-    type:"Incendio Eléctrico",
-    emoji:"⚡",
-    classTag:"CLASE C",
-    pill:"pill-c",
+    type:"Incendio Eléctrico",emoji:"⚡",classTag:"CLASE C",pill:"pill-c",
     pillText:"Clase C · Equipos eléctricos",
     desc:"Un tablero eléctrico comenzó a arder por un cortocircuito. El área está bajo tensión.",
-    correct:"CO2",
-    options:["Agua","CO2","PQS"],
+    correct:"CO2",options:["Agua","CO2","PQS"],
     success:"El CO₂ no conduce electricidad y no daña los equipos. ¡Elección perfecta!",
     fail:"El agua conduce electricidad y puede causar electrocución. Aquí se necesita CO₂."
   },
   {
-    type:"Fuego de Papelería",
-    emoji:"📄",
-    classTag:"CLASE A",
-    pill:"pill-a",
+    type:"Fuego de Papelería",emoji:"📄",classTag:"CLASE A",pill:"pill-a",
     pillText:"Clase A · Sólidos combustibles",
     desc:"Papeles y cartones almacenados en la bodega se incendiaron. Sin riesgo eléctrico.",
-    correct:"Agua",
-    options:["Agua","CO2","PQS"],
+    correct:"Agua",options:["Agua","CO2","PQS"],
     success:"¡Correcto! El agua enfría y empapa los materiales sólidos. Ideal para Clase A.",
     fail:"El mejor extintor para materiales sólidos como papel es el de agua. CO₂ no enfría la brasa."
   },
   {
-    type:"Derrame de Gasolina",
-    emoji:"⛽",
-    classTag:"CLASE B",
-    pill:"pill-b",
+    type:"Derrame de Gasolina",emoji:"⛽",classTag:"CLASE B",pill:"pill-b",
     pillText:"Clase B · Líquidos inflamables",
     desc:"Un bidón de gasolina se volcó y el combustible se prendió en el taller mecánico.",
-    correct:"PQS",
-    options:["Agua","CO2","PQS"],
+    correct:"PQS",options:["Agua","CO2","PQS"],
     success:"¡Correcto! El PQS cubre la superficie e interrumpe la reacción química. Ideal para Clase B.",
     fail:"El agua puede dispersar el combustible y extender el fuego. El PQS es lo indicado aquí."
   },
   {
-    type:"Aceite en Cocina",
-    emoji:"🍳",
-    classTag:"CLASE K",
-    pill:"pill-k",
+    type:"Aceite en Cocina",emoji:"🍳",classTag:"CLASE K",pill:"pill-k",
     pillText:"Clase K · Aceites de cocina",
     desc:"Una freidora industrial se incendió en la cocina del casino. Llamas altas sobre la sartén.",
-    correct:"CO2/K",
-    options:["Agua","CO2/K","PQS"],
+    correct:"CO2/K",options:["Agua","CO2/K","PQS"],
     success:"¡Correcto! CO₂ o extintor Clase K sofocan sin salpicadura. Nunca agua en aceite caliente.",
     fail:"Agua en aceite caliente provoca explosión de vapor. Se requiere CO₂ o extintor Clase K."
   },
   {
-    type:"Archivo en Llamas",
-    emoji:"🗄️",
-    classTag:"CLASE A",
-    pill:"pill-a",
+    type:"Archivo en Llamas",emoji:"🗄️",classTag:"CLASE A",pill:"pill-a",
     pillText:"Clase A · Sólidos combustibles",
     desc:"Cajas de madera y archivos de documentos se incendiaron en el depósito. Sin riesgo eléctrico.",
-    correct:"Agua",
-    options:["Agua","CO2","PQS"],
+    correct:"Agua",options:["Agua","CO2","PQS"],
     success:"¡Bien! El agua es lo más eficaz aquí: enfría la brasa y evita reignición en materiales sólidos.",
     fail:"Para madera y papel, el agua es lo mejor: penetra y enfría la brasa. PQS no evita reignición."
   },
   {
-    type:"Laboratorio Químico",
-    emoji:"🧪",
-    classTag:"CLASE B/C",
-    pill:"pill-b",
+    type:"Laboratorio Químico",emoji:"🧪",classTag:"CLASE B/C",pill:"pill-b",
     pillText:"Clase B/C · Solventes + Electricidad",
     desc:"Solventes inflamables cerca de equipos eléctricos encendidos comenzaron a arder.",
-    correct:"CO2",
-    options:["Agua","CO2","PQS"],
+    correct:"CO2",options:["Agua","CO2","PQS"],
     success:"¡Perfecto! CO₂ es seguro en eléctrico y eficaz en líquidos. No deja residuo en el laboratorio.",
     fail:"CO₂ es la mejor opción: combate el fuego sin conducir electricidad ni contaminar el laboratorio."
   },
   {
-    type:"Vehículo en Llamas",
-    emoji:"🚗",
-    classTag:"CLASE B",
-    pill:"pill-b",
+    type:"Vehículo en Llamas",emoji:"🚗",classTag:"CLASE B",pill:"pill-b",
     pillText:"Clase B · Combustible de motor",
     desc:"Un auto derramó gasolina y prendió. El motor arde pero no hay riesgo de choque eléctrico.",
-    correct:"PQS",
-    options:["Agua","CO2","PQS"],
+    correct:"PQS",options:["Agua","CO2","PQS"],
     success:"¡Exacto! PQS es el más versátil para vehículos: actúa sobre combustibles y evita reignición.",
     fail:"PQS es ideal: cubre el área rápido y actúa en Clase A y B, el más común en vehículos."
   },
   {
-    type:"Generador Eléctrico",
-    emoji:"🔋",
-    classTag:"CLASE C",
-    pill:"pill-c",
+    type:"Generador Eléctrico",emoji:"🔋",classTag:"CLASE C",pill:"pill-c",
     pillText:"Clase C · Equipo energizado",
     desc:"El generador de emergencia del edificio comenzó a arder mientras estaba en pleno funcionamiento.",
-    correct:"CO2",
-    options:["Agua","CO2","PQS"],
+    correct:"CO2",options:["Agua","CO2","PQS"],
     success:"¡Correcto! CO₂ es el agente dieléctrico por excelencia. Seguro y sin residuo en el equipo.",
     fail:"Nunca agua ni PQS en equipos eléctricos activos. CO₂ es el único completamente seguro en Clase C."
   }
@@ -489,138 +655,112 @@ const EXTINGUISHERS = {
   "CO2/K": {icon:"❄️", label:"CO₂/K", cls:"co2k"},
 };
 
-let questions = [];
-let current = 0;
-let score = 0;
-let streak = 0;
-let correctCount = 0;
-let answered = false;
+let questions=[], current=0, score=0, streak=0, correctCount=0, answered=false;
 
 function shuffle(arr){
   const a=[...arr];
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
   return a;
 }
 
 function init(){
-  questions = shuffle(ALL_QUESTIONS);
-  current = 0; score = 0; streak = 0; correctCount = 0;
-  updateScoreUI();
-  loadQuestion();
+  questions=shuffle(ALL_QUESTIONS);
+  current=0;score=0;streak=0;correctCount=0;
+  updateScoreUI();loadQuestion();
 }
 
 function loadQuestion(){
-  answered = false;
-  const q = questions[current];
-
-  // progress
-  const pct = (current / questions.length) * 100;
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressLabel').textContent = (current+1) + ' / ' + questions.length;
-
-  // card
-  document.getElementById('classTag').textContent = '🏷 ' + q.classTag;
-  document.getElementById('fireEmoji').textContent = q.emoji;
-  document.getElementById('fireType').textContent = q.type;
-  document.getElementById('fireDesc').textContent = q.desc;
-  const pill = document.getElementById('typePill');
-  pill.className = 'type-pill ' + q.pill;
-  pill.textContent = q.pillText;
-
+  answered=false;
+  const q=questions[current];
+  const pct=(current/questions.length)*100;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressLabel').textContent=(current+1)+' / '+questions.length;
+  document.getElementById('classTag').textContent='🏷 '+q.classTag;
+  document.getElementById('fireEmoji').textContent=q.emoji;
+  document.getElementById('fireType').textContent=q.type;
+  document.getElementById('fireDesc').textContent=q.desc;
+  const pill=document.getElementById('typePill');
+  pill.className='type-pill '+q.pill;
+  pill.textContent=q.pillText;
   document.getElementById('fireCard').classList.add('slide-in');
-  setTimeout(()=>document.getElementById('fireCard').classList.remove('slide-in'), 400);
+  setTimeout(()=>document.getElementById('fireCard').classList.remove('slide-in'),400);
 
-  // buttons
-  const area = document.getElementById('buttonsArea');
-  area.innerHTML = '';
-  const opts = shuffle(q.options);
-  opts.forEach(opt => {
-    const e = EXTINGUISHERS[opt];
-    const btn = document.createElement('button');
-    btn.className = 'opt-btn ' + e.cls;
-    btn.innerHTML = `<span class="btn-icon">${e.icon}</span>🧯<br><span class="btn-label">${e.label}</span>`;
-    btn.onclick = () => checkAnswer(opt, btn);
+  const area=document.getElementById('buttonsArea');
+  area.innerHTML='';
+  shuffle(q.options).forEach(opt=>{
+    const e=EXTINGUISHERS[opt];
+    const btn=document.createElement('button');
+    btn.className='opt-btn '+e.cls;
+    btn.innerHTML=`<span class="btn-icon">${e.icon}</span>🧯<br><span class="btn-label">${e.label}</span>`;
+    btn.onclick=()=>checkAnswer(opt,btn);
     area.appendChild(btn);
   });
 
-  // result
-  const rb = document.getElementById('resultBox');
-  rb.className = 'result-box';
-  document.getElementById('resultIcon').textContent = '';
-  document.getElementById('resultText').textContent = '';
-
-  document.getElementById('nextBtn').style.display = 'none';
+  const rb=document.getElementById('resultBox');
+  rb.className='result-box';
+  document.getElementById('resultIcon').textContent='';
+  document.getElementById('resultText').textContent='';
+  document.getElementById('nextBtn').style.display='none';
 }
 
-function checkAnswer(chosen, btn){
-  if(answered) return;
-  answered = true;
+function checkAnswer(chosen,btn){
+  if(answered)return;
+  answered=true;
+  // unlock AudioContext on first interaction
+  if(AC.state==='suspended') AC.resume();
 
-  const q = questions[current];
-  const isCorrect = chosen === q.correct;
+  const q=questions[current];
+  const isCorrect=chosen===q.correct;
 
-  // feedback on buttons
-  const allBtns = document.querySelectorAll('#buttonsArea .opt-btn');
-  allBtns.forEach(b => {
-    b.disabled = true;
-    const label = b.querySelector('.btn-label').textContent.replace('₂','2');
-    const optKey = Object.keys(EXTINGUISHERS).find(k => EXTINGUISHERS[k].label.replace('₂','2') === label || EXTINGUISHERS[k].label === b.querySelector('.btn-label').textContent);
-    if(optKey === q.correct) b.classList.add('reveal-correct');
+  document.querySelectorAll('#buttonsArea .opt-btn').forEach(b=>{
+    b.disabled=true;
+    const lbl=b.querySelector('.btn-label').textContent;
+    const optKey=Object.keys(EXTINGUISHERS).find(k=>EXTINGUISHERS[k].label===lbl);
+    if(optKey===q.correct) b.classList.add('reveal-correct');
   });
 
   if(isCorrect){
     btn.classList.add('correct-anim');
-    score += streak >= 2 ? 15 : 10;
-    streak++;
-    correctCount++;
+    score+=streak>=2?15:10;
+    streak++;correctCount++;
+    playCorrect();
   } else {
     btn.classList.add('wrong-anim');
-    streak = 0;
-    score = Math.max(0, score - 2);
+    streak=0;score=Math.max(0,score-2);
+    playWrong();
   }
 
   updateScoreUI();
-
-  // result box
-  const rb = document.getElementById('resultBox');
-  document.getElementById('resultIcon').textContent = isCorrect ? '✅' : '❌';
-  document.getElementById('resultText').textContent = isCorrect ? q.success : q.fail;
-  rb.className = 'result-box show ' + (isCorrect ? 'ok' : 'fail');
-
-  // next button
-  const nb = document.getElementById('nextBtn');
-  nb.style.display = 'block';
-  nb.textContent = current + 1 >= questions.length ? 'Ver resultados 🏆' : 'Siguiente incendio →';
+  const rb=document.getElementById('resultBox');
+  document.getElementById('resultIcon').textContent=isCorrect?'✅':'❌';
+  document.getElementById('resultText').textContent=isCorrect?q.success:q.fail;
+  rb.className='result-box show '+(isCorrect?'ok':'fail');
+  const nb=document.getElementById('nextBtn');
+  nb.style.display='block';
+  nb.textContent=current+1>=questions.length?'Ver resultados 🏆':'Siguiente incendio →';
 }
 
 function updateScoreUI(){
-  document.getElementById('scoreVal').textContent = score;
-  document.getElementById('streakVal').textContent = streak;
+  document.getElementById('scoreVal').textContent=score;
+  document.getElementById('streakVal').textContent=streak;
 }
 
 function nextQuestion(){
   current++;
-  if(current >= questions.length){
-    showEnd();
-    return;
-  }
+  if(current>=questions.length){showEnd();return;}
   loadQuestion();
 }
 
 function showEnd(){
-  document.getElementById('progressFill').style.width = '100%';
-  const pct = Math.round((correctCount / questions.length) * 100);
-  let ratingText = '';
-  let trophy = '🏆';
-  if(pct === 100){ ratingText = '¡Puntaje perfecto! Eres un <strong>experto brigadista</strong>. 🔥'; trophy = '🥇'; }
-  else if(pct >= 75){ ratingText = '¡Muy bien! Tienes buenas bases para <strong>responder emergencias</strong>. Sigue practicando.'; trophy = '🏆'; }
-  else if(pct >= 50){ ratingText = 'Vas por buen camino, pero hay conceptos clave que repasar. <strong>Inténtalo de nuevo.</strong>'; trophy = '🎯'; }
-  else { ratingText = 'Necesitas reforzar el entrenamiento. <strong>¡La práctica hace al maestro!</strong>'; trophy = '📚'; }
+  document.getElementById('progressFill').style.width='100%';
+  const pct=Math.round((correctCount/questions.length)*100);
+  let ratingText='',trophy='🏆';
+  if(pct===100){ratingText='¡Puntaje perfecto! Eres un <strong>experto brigadista</strong>. 🔥';trophy='🥇';playFanfare();}
+  else if(pct>=75){ratingText='¡Muy bien! Tienes buenas bases para <strong>responder emergencias</strong>. Sigue practicando.';trophy='🏆';}
+  else if(pct>=50){ratingText='Vas por buen camino, pero hay conceptos clave que repasar. <strong>Inténtalo de nuevo.</strong>';trophy='🎯';}
+  else{ratingText='Necesitas reforzar el entrenamiento. <strong>¡La práctica hace al maestro!</strong>';trophy='📚';}
 
-  document.getElementById('gameArea').innerHTML = `
+  document.getElementById('gameArea').innerHTML=`
     <div class="end-screen">
       <span class="trophy">${trophy}</span>
       <div class="end-title">Entrenamiento Completo</div>
@@ -633,7 +773,9 @@ function showEnd(){
   `;
 }
 
-init();
+// Start with intro
+renderIntro();
 </script>
 </body>
 </html>
+
