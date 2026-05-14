@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🔥 Safe/Game - Extintores</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root{
+  --orange:#ff5500;
+  --amber:#ffaa00;
+  --dark:#0e0e0e;
+  --card:#181818;
+  --card2:#1f1f1f;
+  --text:#f0f0f0;
+  --muted:#888;
+  --water:#1e88e5;
+  --co2:#546e7a;
+  --pqs:#ef6c00;
+  --correct:#2e7d32;
+  --wrong:#c62828;
+  --panic-red:#d32f2f;
+  --panic-amber:#ff8f00;
+}
+
+body{
+  background:var(--dark);
+  color:var(--text);
+  font-family:'Barlow',sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  overflow-x:hidden;
+}
+
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(255,85,0,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 80% 20%, rgba(255,170,0,0.06) 0%, transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.wrap{
+  position:relative;z-index:1;
+  width:100%;max-width:440px;
+}
+
+/* ── HEADER ── */
+.header{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:28px;
+}
+.header-icon{font-size:36px;line-height:1;}
+.header-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:36px;letter-spacing:2px;
+  color:var(--orange);
+  line-height:1;
+}
+.header-sub{
+  font-size:12px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--muted);margin-top:2px;
+}
+
+/* ── MAIN MENU ── */
+.main-menu{
+  text-align:center;
+  padding:10px 0;
+}
+.menu-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:28px;letter-spacing:3px;
+  color:var(--amber);
+  margin-bottom:8px;
+}
+.menu-sub{
+  font-size:13px;color:var(--muted);letter-spacing:1px;
+  margin-bottom:28px;
+}
+.menu-grid{
+  display:grid;grid-template-columns:1fr;gap:14px;
+}
+.menu-card{
+  background:var(--card);
+  border:1.5px solid #2a2a2a;
+  border-radius:18px;
+  padding:20px 22px;
+  cursor:pointer;
+  transition:all .25s;
+  display:flex;align-items:center;gap:16px;
+  text-align:left;
+  position:relative;overflow:hidden;
+}
+.menu-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  border-radius:18px 18px 0 0;
+}
+.menu-card.mc-quiz::before{background:linear-gradient(90deg,var(--orange),var(--amber),transparent);}
+.menu-card.mc-roulette::before{background:linear-gradient(90deg,#7b1fa2,#ce93d8,transparent);}
+.menu-card.mc-panic::before{background:linear-gradient(90deg,var(--panic-red),var(--panic-amber),transparent);}
+.menu-card:hover{
+  transform:translateY(-3px);
+  border-color:#444;
+  background:#1e1e1e;
+}
+.menu-card-icon{font-size:38px;flex-shrink:0;}
+.menu-card-body{}
+.menu-card-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;letter-spacing:2px;
+  color:var(--text);
+}
+.menu-card-desc{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5;}
+.menu-card-badge{
+  margin-left:auto;
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  font-weight:700;padding:3px 10px;border-radius:99px;flex-shrink:0;
+}
+.badge-orange{background:rgba(255,85,0,.15);color:#ff7744;border:1px solid rgba(255,85,0,.3);}
+.badge-purple{background:rgba(123,31,162,.15);color:#ce93d8;border:1px solid rgba(123,31,162,.3);}
+.badge-red{background:rgba(211,47,47,.15);color:#ef9a9a;border:1px solid rgba(211,47,47,.3);}
+
+/* ── PROGRESS ── */
+.progress-wrap{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:20px;
+}
+.progress-bar{flex:1;height:6px;background:#2a2a2a;border-radius:99px;overflow:hidden;}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--orange),var(--amber));
+  border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1);width:0%;
+}
+.progress-label{font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap;}
+
+/* ── SCORE ── */
+.score-row{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:20px;
+}
+.score-badge,.streak-badge{
+  background:var(--card2);border:1px solid #2e2e2e;border-radius:12px;
+  padding:8px 16px;font-size:13px;color:var(--muted);
+  display:flex;gap:6px;align-items:center;
+}
+.score-badge span{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--amber);letter-spacing:1px;}
+.streak-badge span{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#ff5500;letter-spacing:1px;}
+
+/* ── FIRE CARD ── */
+.fire-card{
+  background:var(--card);border:1px solid #2a2a2a;border-radius:20px;
+  padding:24px;margin-bottom:20px;position:relative;overflow:hidden;transition:border-color .3s;
+}
+.fire-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--orange),var(--amber),transparent);
+  border-radius:20px 20px 0 0;
+}
+.class-tag{
+  display:inline-flex;align-items:center;gap:6px;background:#2a2a2a;border-radius:8px;
+  padding:4px 10px;font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--amber);font-weight:700;margin-bottom:14px;
+}
+.fire-emoji{font-size:52px;display:block;margin-bottom:12px;animation:flicker 1.8s ease-in-out infinite;}
+@keyframes flicker{
+  0%,100%{transform:scale(1) rotate(-1deg);filter:brightness(1);}
+  30%{transform:scale(1.06) rotate(1deg);filter:brightness(1.2);}
+  60%{transform:scale(.97) rotate(-2deg);filter:brightness(.9);}
+  80%{transform:scale(1.04) rotate(1deg);filter:brightness(1.1);}
+}
+.fire-type{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--text);margin-bottom:8px;}
+.fire-desc{font-size:14px;line-height:1.6;color:#aaa;}
+.type-pill{
+  display:inline-block;font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  font-weight:700;padding:3px 10px;border-radius:99px;margin-top:12px;
+}
+.pill-a{background:rgba(255,85,0,.15);color:#ff7744;border:1px solid rgba(255,85,0,.3);}
+.pill-b{background:rgba(255,170,0,.15);color:#ffcc44;border:1px solid rgba(255,170,0,.3);}
+.pill-c{background:rgba(84,110,122,.2);color:#90a4ae;border:1px solid rgba(84,110,122,.4);}
+.pill-k{background:rgba(85,139,47,.15);color:#8bc34a;border:1px solid rgba(85,139,47,.3);}
+
+/* ── BUTTONS ── */
+.buttons{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.opt-btn{
+  background:var(--card2);border:1.5px solid #2e2e2e;border-radius:16px;
+  padding:16px 12px;color:var(--text);font-family:'Barlow',sans-serif;
+  font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  position:relative;overflow:hidden;
+}
+.opt-btn:not(:disabled):hover{transform:translateY(-3px);border-color:#444;background:#252525;}
+.opt-btn:not(:disabled):active{transform:scale(.97);}
+.opt-btn .btn-icon{font-size:26px;}
+.opt-btn .btn-label{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.opt-btn.water{--accent:var(--water);}
+.opt-btn.co2{--accent:var(--co2);}
+.opt-btn.pqs{--accent:var(--pqs);}
+.opt-btn.co2k{--accent:#7b1fa2;}
+.opt-btn:not(:disabled):hover{border-color:var(--accent,#444);}
+.opt-btn.correct-anim{border-color:#4caf50!important;background:rgba(76,175,80,.15)!important;animation:correctPop .4s ease;}
+.opt-btn.wrong-anim{border-color:#f44336!important;background:rgba(244,67,54,.12)!important;animation:wrongShake .4s ease;}
+.opt-btn.reveal-correct{border-color:#4caf50!important;background:rgba(76,175,80,.1)!important;}
+@keyframes correctPop{0%{transform:scale(1);}40%{transform:scale(1.08);}100%{transform:scale(1);}}
+@keyframes wrongShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}60%{transform:translateX(6px);}}
+.opt-btn:disabled{opacity:.55;cursor:default;}
+
+/* ── RESULT ── */
+.result-box{
+  min-height:64px;border-radius:14px;padding:14px 16px;
+  font-size:14px;line-height:1.6;font-weight:600;
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:16px;opacity:0;transform:translateY(6px);transition:all .3s ease;
+}
+.result-box.show{opacity:1;transform:translateY(0);}
+.result-box.ok{background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);color:#81c784;}
+.result-box.fail{background:rgba(244,67,54,.1);border:1px solid rgba(244,67,54,.3);color:#e57373;}
+.result-icon{font-size:22px;flex-shrink:0;}
+
+/* ── NEXT BUTTON ── */
+.next-btn{
+  width:100%;background:linear-gradient(135deg,var(--orange),#ff8800);
+  border:none;border-radius:14px;padding:16px;color:white;
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
+  cursor:pointer;transition:all .25s;display:none;
+}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,85,0,.4);}
+.next-btn:active{transform:scale(.98);}
+
+/* ── BACK BUTTON ── */
+.back-btn{
+  background:transparent;border:1px solid #2e2e2e;border-radius:10px;
+  padding:8px 16px;color:var(--muted);font-family:'Barlow',sans-serif;
+  font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;
+  display:inline-flex;align-items:center;gap:6px;margin-bottom:20px;
+}
+.back-btn:hover{color:var(--text);border-color:#444;background:#1a1a1a;}
+
+/* ── END SCREEN ── */
+.end-screen{text-align:center;padding:10px;}
+.trophy{font-size:64px;display:block;animation:bounce .6s ease infinite alternate;}
+@keyframes bounce{from{transform:translateY(0);}to{transform:translateY(-12px);}}
+.end-title{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:3px;color:var(--amber);margin-top:16px;}
+.end-score-label{margin-top:8px;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
+.end-score-val{font-family:'Bebas Neue',sans-serif;font-size:72px;color:var(--orange);letter-spacing:2px;line-height:1;}
+.end-accuracy{font-size:14px;color:var(--muted);margin-top:4px;}
+.rating{margin:20px 0;font-size:14px;color:#ccc;line-height:1.7;background:var(--card2);border-radius:14px;padding:16px;border:1px solid #2a2a2a;}
+.rating strong{color:var(--amber);}
+.replay-btn{
+  width:100%;background:linear-gradient(135deg,var(--orange),#ff8800);
+  border:none;border-radius:14px;padding:16px;color:white;
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
+  cursor:pointer;margin-top:8px;transition:all .25s;
+}
+.replay-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,85,0,.35);}
+.menu-return-btn{
+  width:100%;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;
+  padding:14px;color:var(--muted);font-family:'Bebas Neue',sans-serif;
+  font-size:18px;letter-spacing:2px;cursor:pointer;margin-top:10px;transition:all .25s;
+}
+.menu-return-btn:hover{color:var(--text);border-color:#444;}
+
+/* ── SLIDE-IN ── */
+.slide-in{animation:slideIn .35s cubic-bezier(.4,0,.2,1);}
+@keyframes slideIn{from{opacity:0;transform:translateX(18px);}to{opacity:1;transform:translateX(0);}}
+
+/* ── INTRO SCREEN ── */
+.intro-dots{display:flex;justify-content:center;gap:8px;margin-bottom:24px;}
+.intro-dot{width:8px;height:8px;border-radius:99px;background:#2e2e2e;transition:all .3s;}
+.intro-dot.active{background:var(--orange);width:24px;}
+.intro-card{
+  background:var(--card);border:1px solid #2a2a2a;border-radius:20px;padding:28px 24px;
+  margin-bottom:20px;position:relative;overflow:hidden;text-align:center;
+  animation:slideIn .35s cubic-bezier(.4,0,.2,1);
+}
+.intro-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:20px 20px 0 0;}
+.intro-card.water-card::before{background:linear-gradient(90deg,#1565c0,#42a5f5,transparent);}
+.intro-card.co2-card::before{background:linear-gradient(90deg,#37474f,#90a4ae,transparent);}
+.intro-card.pqs-card::before{background:linear-gradient(90deg,#e65100,#ffb74d,transparent);}
+.intro-card.co2k-card::before{background:linear-gradient(90deg,#4a148c,#ce93d8,transparent);}
+.intro-big-icon{font-size:64px;display:block;margin-bottom:16px;animation:flicker 2s ease-in-out infinite;}
+.intro-ext-name{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;margin-bottom:6px;}
+.intro-ext-name.water-txt{color:#42a5f5;}
+.intro-ext-name.co2-txt{color:#90a4ae;}
+.intro-ext-name.pqs-txt{color:#ffb74d;}
+.intro-ext-name.co2k-txt{color:#ce93d8;}
+.intro-tagline{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;}
+.intro-desc{font-size:14px;line-height:1.7;color:#bbb;margin-bottom:20px;text-align:left;}
+.intro-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:4px;}
+.intro-tag{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 12px;border-radius:99px;}
+.tag-yes{background:rgba(76,175,80,.15);color:#81c784;border:1px solid rgba(76,175,80,.3);}
+.tag-no{background:rgba(244,67,54,.1);color:#e57373;border:1px solid rgba(244,67,54,.25);}
+.intro-nav{display:flex;gap:12px;}
+.intro-prev-btn,.intro-next-btn,.intro-start-btn,.intro-skip-btn{
+  border:none;border-radius:14px;padding:14px 20px;
+  font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;transition:all .25s;
+}
+.intro-prev-btn{background:#2a2a2a;color:var(--muted);flex:0 0 auto;}
+.intro-prev-btn:hover{background:#333;color:var(--text);}
+.intro-next-btn{background:linear-gradient(135deg,var(--orange),#ff8800);color:white;flex:1;}
+.intro-next-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,85,0,.35);}
+.intro-start-btn{background:linear-gradient(135deg,#2e7d32,#43a047);color:white;flex:1;}
+.intro-start-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(46,125,50,.35);}
+.intro-skip-btn{
+  width:100%;background:transparent;border:1px solid #2e2e2e!important;
+  color:var(--muted);font-size:13px;letter-spacing:2px;margin-top:10px;padding:11px;
+}
+.intro-skip-btn:hover{color:var(--text);border-color:#444!important;background:#1a1a1a;}
+
+/* ══════════════════════════════════
+   ── RULETA DE EMERGENCIA ──
+══════════════════════════════════ */
+.roulette-section{}
+.roulette-title{
+  font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;
+  color:#ce93d8;text-align:center;margin-bottom:4px;
+}
+.roulette-sub{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:24px;}
+
+/* Canvas wheel */
+.wheel-wrap{
+  position:relative;width:280px;height:280px;margin:0 auto 20px;
+}
+#rouletteCanvas{
+  border-radius:50%;
+  box-shadow:0 0 0 4px #2a2a2a, 0 0 40px rgba(123,31,162,0.3);
+  transition:filter .1s;
+}
+.wheel-pointer{
+  position:absolute;top:-18px;left:50%;transform:translateX(-50%);
+  font-size:28px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6));
+  z-index:10;
+  animation:pointerBounce .8s ease-in-out infinite alternate;
+}
+@keyframes pointerBounce{from{transform:translateX(-50%) translateY(0);}to{transform:translateX(-50%) translateY(4px);}}
+.wheel-spin-btn{
+  display:block;width:100%;
+  background:linear-gradient(135deg,#7b1fa2,#ab47bc);
+  border:none;border-radius:14px;padding:16px;color:white;
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;
+  cursor:pointer;transition:all .25s;
+  margin-bottom:20px;
+}
+.wheel-spin-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(123,31,162,.45);}
+.wheel-spin-btn:disabled{opacity:.5;cursor:default;transform:none;}
+
+.roulette-result{
+  background:var(--card);border:1px solid #2a2a2a;border-radius:18px;
+  padding:0;overflow:hidden;
+  max-height:0;transition:max-height .5s cubic-bezier(.4,0,.2,1), padding .3s;
+}
+.roulette-result.open{max-height:500px;padding:22px;}
+
+.roulette-result-header{
+  display:flex;align-items:center;gap:14px;margin-bottom:14px;
+}
+.roulette-result-icon{font-size:44px;}
+.roulette-result-label{
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:2px;
+}
+.roulette-result-name{
+  font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--text);
+}
+.roulette-result-class{
+  font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  padding:3px 10px;border-radius:99px;margin-top:4px;display:inline-block;
+}
+.roulette-result-body{font-size:14px;line-height:1.7;color:#bbb;margin-bottom:14px;}
+.roulette-steps{}
+.roulette-step{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 0;border-bottom:1px solid #2a2a2a;
+}
+.roulette-step:last-child{border-bottom:none;}
+.roulette-step-num{
+  font-family:'Bebas Neue',sans-serif;font-size:18px;
+  color:var(--orange);flex-shrink:0;width:20px;
+}
+.roulette-step-text{font-size:13px;color:#ccc;line-height:1.5;}
+
+/* ══════════════════════════════════
+   ── SIMULADOR DE PÁNICO ──
+══════════════════════════════════ */
+.panic-section{}
+.panic-title{
+  font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;
+  color:#ef9a9a;text-align:center;margin-bottom:4px;
+}
+.panic-sub{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:24px;}
+
+/* States: idle → countdown → scenario → debrief */
+.panic-idle{text-align:center;padding:10px 0;}
+.panic-idle-icon{font-size:80px;display:block;margin-bottom:16px;animation:pulseRed 1.5s ease-in-out infinite;}
+@keyframes pulseRed{
+  0%,100%{filter:brightness(1);transform:scale(1);}
+  50%{filter:brightness(1.3);transform:scale(1.06);}
+}
+.panic-idle-text{font-size:14px;color:#aaa;line-height:1.7;margin-bottom:24px;}
+.panic-start-btn{
+  width:100%;background:linear-gradient(135deg,var(--panic-red),#ef5350);
+  border:none;border-radius:14px;padding:18px;color:white;
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;
+  cursor:pointer;transition:all .25s;
+  animation:panicPulse 1.2s ease-in-out infinite alternate;
+}
+@keyframes panicPulse{
+  from{box-shadow:0 0 20px rgba(211,47,47,.3);}
+  to{box-shadow:0 0 40px rgba(211,47,47,.7);}
+}
+.panic-start-btn:hover{transform:translateY(-2px);}
+
+/* Countdown */
+.panic-countdown{
+  display:none;text-align:center;padding:30px 0;
+}
+.panic-countdown-num{
+  font-family:'Bebas Neue',sans-serif;font-size:120px;
+  color:var(--panic-red);letter-spacing:-4px;line-height:1;
+  animation:countPop .9s ease-in-out;
+}
+@keyframes countPop{
+  0%{transform:scale(1.6);opacity:0;}
+  30%{opacity:1;}
+  100%{transform:scale(1);}
+}
+.panic-countdown-label{font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);}
+
+/* Scenario card */
+.panic-scenario{display:none;}
+.panic-alarm{
+  background:linear-gradient(135deg,rgba(211,47,47,.15),rgba(255,143,0,.1));
+  border:1.5px solid rgba(211,47,47,.4);
+  border-radius:16px;padding:16px;margin-bottom:16px;
+  display:flex;align-items:center;gap:12px;
+}
+.panic-alarm-icon{font-size:32px;animation:alarmBlink .5s ease-in-out infinite alternate;}
+@keyframes alarmBlink{from{opacity:1;}to{opacity:.3;}};
+.panic-alarm-text{font-size:13px;color:#ef9a9a;font-weight:600;line-height:1.5;}
+.panic-alarm-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(239,154,154,.6);margin-bottom:2px;}
+
+.panic-timer-bar-wrap{
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;
+}
+.panic-timer-bar{flex:1;height:8px;background:#2a2a2a;border-radius:99px;overflow:hidden;}
+.panic-timer-fill{
+  height:100%;background:linear-gradient(90deg,var(--panic-red),var(--panic-amber));
+  border-radius:99px;transition:width .1s linear;
+  width:100%;
+}
+.panic-timer-label{font-size:13px;font-weight:700;color:var(--panic-red);white-space:nowrap;width:36px;text-align:right;}
+
+.panic-q{
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;
+  color:var(--text);margin-bottom:6px;
+}
+.panic-q-sub{font-size:13px;color:#aaa;line-height:1.6;margin-bottom:18px;}
+
+.panic-options{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:16px;}
+.panic-opt{
+  background:var(--card2);border:1.5px solid #2e2e2e;border-radius:14px;
+  padding:14px 16px;color:var(--text);font-family:'Barlow',sans-serif;
+  font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;
+  text-align:left;display:flex;align-items:center;gap:10px;
+}
+.panic-opt:not(:disabled):hover{background:#252525;border-color:#555;transform:translateX(4px);}
+.panic-opt:disabled{opacity:.6;cursor:default;}
+.panic-opt.correct-anim{border-color:#4caf50!important;background:rgba(76,175,80,.12)!important;animation:correctPop .4s ease;}
+.panic-opt.wrong-anim{border-color:#f44336!important;background:rgba(244,67,54,.1)!important;animation:wrongShake .4s ease;}
+.panic-opt.reveal-correct{border-color:#4caf50!important;background:rgba(76,175,80,.08)!important;}
+.panic-opt-letter{
+  font-family:'Bebas Neue',sans-serif;font-size:18px;
+  color:var(--muted);flex-shrink:0;width:20px;
+}
+.panic-step-indicator{
+  display:flex;gap:6px;margin-bottom:16px;
+}
+.panic-step-dot{
+  flex:1;height:4px;border-radius:99px;background:#2a2a2a;transition:background .3s;
+}
+.panic-step-dot.done{background:var(--panic-red);}
+.panic-step-dot.current{background:var(--panic-amber);animation:dotPulse .8s ease-in-out infinite alternate;}
+@keyframes dotPulse{from{opacity:.6;}to{opacity:1;}}
+
+/* Debrief */
+.panic-debrief{display:none;text-align:center;padding:10px 0;}
+.panic-debrief-icon{font-size:64px;display:block;margin-bottom:12px;animation:bounce .6s ease infinite alternate;}
+.panic-debrief-title{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:2px;color:var(--amber);margin-bottom:8px;}
+.panic-debrief-score{font-family:'Bebas Neue',sans-serif;font-size:60px;color:var(--orange);letter-spacing:2px;line-height:1;}
+.panic-debrief-sub{font-size:13px;color:var(--muted);margin-bottom:16px;}
+.panic-debrief-msg{
+  background:var(--card);border:1px solid #2a2a2a;border-radius:14px;
+  padding:16px;font-size:14px;color:#ccc;line-height:1.7;margin-bottom:16px;
+  text-align:left;
+}
+.panic-debrief-msg strong{color:var(--amber);}
+.panic-replay-btn{
+  width:100%;background:linear-gradient(135deg,var(--panic-red),#ef5350);
+  border:none;border-radius:14px;padding:16px;color:white;
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
+  cursor:pointer;margin-top:4px;transition:all .25s;
+}
+.panic-replay-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(211,47,47,.4);}
+
+/* ── TIMEOUT SCREEN ── */
+.panic-timeout{
+  display:none;text-align:center;padding:20px 0;
+}
+.panic-timeout-icon{font-size:64px;display:block;margin-bottom:12px;animation:shake 0.4s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+.panic-timeout-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:var(--panic-red);margin-bottom:8px;}
+.panic-timeout-text{font-size:14px;color:#aaa;line-height:1.6;margin-bottom:20px;}
+.panic-timeout-btn{
+  width:100%;background:linear-gradient(135deg,var(--panic-red),var(--panic-amber));
+  border:none;border-radius:14px;padding:16px;color:white;
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
+  cursor:pointer;transition:all .25s;
+}
+.panic-timeout-btn:hover{transform:translateY(-2px);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-icon">🧯</div>
+    <div class="header-text">
+      <div class="header-title">SAFE/GAME</div>
+      <div class="header-sub">Entrenamiento de Brigada</div>
+    </div>
+  </div>
+
+  <!-- MAIN MENU -->
+  <div id="mainMenu">
+    <div class="menu-title">MÓDULOS DE ENTRENAMIENTO</div>
+    <div class="menu-sub">Selecciona un modo de práctica</div>
+    <div class="menu-grid">
+      <div class="menu-card mc-quiz" onclick="showIntro()">
+        <div class="menu-card-icon">🧯</div>
+        <div class="menu-card-body">
+          <div class="menu-card-name">Quiz de Extintores</div>
+          <div class="menu-card-desc">Identifica el extintor correcto para cada tipo de incendio</div>
+        </div>
+        <div class="menu-card-badge badge-orange">8 RONDAS</div>
+      </div>
+      <div class="menu-card mc-roulette" onclick="showRoulette()">
+        <div class="menu-card-icon">🎰</div>
+        <div class="menu-card-body">
+          <div class="menu-card-name">Ruleta de Emergencia</div>
+          <div class="menu-card-desc">Gira y aprende el protocolo para una emergencia aleatoria</div>
+        </div>
+        <div class="menu-card-badge badge-purple">AZAR</div>
+      </div>
+      <div class="menu-card mc-panic" onclick="showPanic()">
+        <div class="menu-card-icon">🚨</div>
+        <div class="menu-card-body">
+          <div class="menu-card-name">Simulador de Pánico</div>
+          <div class="menu-card-desc">Toma decisiones críticas bajo presión y contra el tiempo</div>
+        </div>
+        <div class="menu-card-badge badge-red">PRESIÓN</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTRO SCREEN -->
+  <div id="introScreen" style="display:none">
+    <button class="back-btn" onclick="showMenu()">← Volver al menú</button>
+    <div class="intro-dots" id="introDots"></div>
+    <div id="introCard"></div>
+    <div class="intro-nav" id="introNav"></div>
+    <button class="intro-skip-btn" onclick="startGame()">⚡ Saltar al juego</button>
+  </div>
+
+  <!-- GAME AREA (Quiz) -->
+  <div id="gameArea" style="display:none">
+    <button class="back-btn" onclick="showMenu()">← Menú principal</button>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">1 / 8</div>
+    </div>
+    <div class="score-row">
+      <div class="score-badge">⭐ Puntos <span id="scoreVal">0</span></div>
+      <div class="streak-badge">🔥 Racha <span id="streakVal">0</span></div>
+    </div>
+    <div class="fire-card" id="fireCard">
+      <div class="class-tag" id="classTag">🏷 CLASE X</div>
+      <div class="fire-emoji" id="fireEmoji">🔥</div>
+      <div class="fire-type" id="fireType">Cargando...</div>
+      <div class="fire-desc" id="fireDesc">...</div>
+      <div class="type-pill" id="typePill"></div>
+    </div>
+    <div class="buttons" id="buttonsArea"></div>
+    <div class="result-box" id="resultBox">
+      <span class="result-icon" id="resultIcon"></span>
+      <span id="resultText"></span>
+    </div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Siguiente incendio →</button>
+  </div>
+
+  <!-- RULETA DE EMERGENCIA -->
+  <div id="rouletteArea" style="display:none">
+    <button class="back-btn" onclick="showMenu()">← Menú principal</button>
+    <div class="roulette-section">
+      <div class="roulette-title">RULETA DE EMERGENCIA</div>
+      <div class="roulette-sub">¿Qué emergencia te tocará hoy?</div>
+
+      <div class="wheel-wrap">
+        <div class="wheel-pointer">▼</div>
+        <canvas id="rouletteCanvas" width="280" height="280"></canvas>
+      </div>
+
+      <button class="wheel-spin-btn" id="spinBtn" onclick="spinRoulette()">🎰 GIRAR RULETA</button>
+
+      <div class="roulette-result" id="rouletteResult">
+        <div class="roulette-result-header">
+          <div class="roulette-result-icon" id="rResultIcon">🔥</div>
+          <div>
+            <div class="roulette-result-label">Emergencia asignada</div>
+            <div class="roulette-result-name" id="rResultName">-</div>
+            <div class="roulette-result-class" id="rResultClass">-</div>
+          </div>
+        </div>
+        <div class="roulette-result-body" id="rResultBody">-</div>
+        <div class="roulette-steps" id="rResultSteps"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIMULADOR DE PÁNICO -->
+  <div id="panicArea" style="display:none">
+    <button class="back-btn" onclick="showMenu()">← Menú principal</button>
+    <div class="panic-section">
+      <div class="panic-title">SIMULADOR DE PÁNICO</div>
+      <div class="panic-sub">Decisiones bajo presión · Tiempo límite</div>
+
+      <!-- IDLE -->
+      <div class="panic-idle" id="panicIdle">
+        <span class="panic-idle-icon">🚨</span>
+        <div class="panic-idle-text">
+          Simula una emergencia real. Tendrás <strong style="color:var(--amber)">15 segundos</strong> para responder cada decisión crítica.<br><br>
+          Los errores cuestan puntos. La velocidad suma bonus.
+        </div>
+        <button class="panic-start-btn" onclick="startPanic()">🚨 ACTIVAR ALARMA</button>
+      </div>
+
+      <!-- COUNTDOWN -->
+      <div class="panic-countdown" id="panicCountdown">
+        <div class="panic-countdown-num" id="countNum">3</div>
+        <div class="panic-countdown-label">PREPARÁNDOSE...</div>
+      </div>
+
+      <!-- SCENARIO -->
+      <div class="panic-scenario" id="panicScenario">
+        <div class="panic-alarm">
+          <div class="panic-alarm-icon">🔔</div>
+          <div>
+            <div class="panic-alarm-label" id="panicScenLabel">EMERGENCIA ACTIVA</div>
+            <div class="panic-alarm-text" id="panicScenName">-</div>
+          </div>
+        </div>
+        <div class="panic-step-indicator" id="panicStepDots"></div>
+        <div class="panic-timer-bar-wrap">
+          <div class="panic-timer-bar"><div class="panic-timer-fill" id="panicTimerFill"></div></div>
+          <div class="panic-timer-label" id="panicTimerLabel">15s</div>
+        </div>
+        <div class="panic-q" id="panicQ">¿Qué haces primero?</div>
+        <div class="panic-q-sub" id="panicQSub"></div>
+        <div class="panic-options" id="panicOptions"></div>
+      </div>
+
+      <!-- TIMEOUT -->
+      <div class="panic-timeout" id="panicTimeout">
+        <span class="panic-timeout-icon">⏱️</span>
+        <div class="panic-timeout-title">¡TIEMPO AGOTADO!</div>
+        <div class="panic-timeout-text">En una emergencia real no hay tiempo para dudar. Cada segundo cuenta para la vida de tu equipo.</div>
+        <button class="panic-timeout-btn" onclick="panicNextStep(true)">Ver respuesta correcta</button>
+      </div>
+
+      <!-- DEBRIEF -->
+      <div class="panic-debrief" id="panicDebrief">
+        <span class="panic-debrief-icon" id="panicDebriefIcon">🎖️</span>
+        <div class="panic-debrief-title">SIMULACRO COMPLETADO</div>
+        <div class="panic-debrief-score" id="panicDebriefScore">0</div>
+        <div class="panic-debrief-sub" id="panicDebriefSub">puntos</div>
+        <div class="panic-debrief-msg" id="panicDebriefMsg"></div>
+        <button class="panic-replay-btn" onclick="restartPanic()">🚨 NUEVO SIMULACRO</button>
+        <button class="menu-return-btn" onclick="showMenu()">Menú Principal</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+/* ══════════════════════════════════
+   AUDIO
+══════════════════════════════════ */
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+function unlockAC(){ if(AC.state==='suspended') AC.resume(); }
+
+function playCorrect(){
+  unlockAC();
+  const t=AC.currentTime;
+  [523,659,784].forEach((f,i)=>{
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.connect(g);g.connect(AC.destination);
+    o.frequency.value=f;o.type='sine';
+    g.gain.setValueAtTime(0,t+i*.1);
+    g.gain.linearRampToValueAtTime(.18,t+i*.1+.03);
+    g.gain.linearRampToValueAtTime(0,t+i*.1+.18);
+    o.start(t+i*.1);o.stop(t+i*.1+.2);
+  });
+}
+function playWrong(){
+  unlockAC();
+  const t=AC.currentTime;
+  [220,180].forEach((f,i)=>{
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.connect(g);g.connect(AC.destination);
+    o.frequency.value=f;o.type='sawtooth';
+    g.gain.setValueAtTime(0,t+i*.12);
+    g.gain.linearRampToValueAtTime(.12,t+i*.12+.04);
+    g.gain.linearRampToValueAtTime(0,t+i*.12+.2);
+    o.start(t+i*.12);o.stop(t+i*.12+.25);
+  });
+}
+function playFanfare(){
+  unlockAC();
+  const t=AC.currentTime;
+  [523,659,784,1047].forEach((f,i)=>{
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.connect(g);g.connect(AC.destination);
+    o.frequency.value=f;o.type='sine';
+    g.gain.setValueAtTime(0,t+i*.13);
+    g.gain.linearRampToValueAtTime(.2,t+i*.13+.05);
+    g.gain.linearRampToValueAtTime(0,t+i*.13+.3);
+    o.start(t+i*.13);o.stop(t+i*.13+.35);
+  });
+}
+function playAlarm(){
+  unlockAC();
+  const t=AC.currentTime;
+  [880,880,660,880].forEach((f,i)=>{
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.connect(g);g.connect(AC.destination);
+    o.frequency.value=f;o.type='square';
+    g.gain.setValueAtTime(0,t+i*.18);
+    g.gain.linearRampToValueAtTime(.08,t+i*.18+.02);
+    g.gain.linearRampToValueAtTime(0,t+i*.18+.15);
+    o.start(t+i*.18);o.stop(t+i*.18+.18);
+  });
+}
+function playTick(){
+  unlockAC();
+  const t=AC.currentTime;
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.connect(g);g.connect(AC.destination);
+  o.frequency.value=1200;o.type='sine';
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(.06,t+.01);
+  g.gain.linearRampToValueAtTime(0,t+.04);
+  o.start(t);o.stop(t+.05);
+}
+
+/* ══════════════════════════════════
+   MENU NAVIGATION
+══════════════════════════════════ */
+function hideAll(){
+  ['mainMenu','introScreen','gameArea','rouletteArea','panicArea']
+    .forEach(id=>document.getElementById(id).style.display='none');
+}
+function showMenu(){
+  hideAll();
+  document.getElementById('mainMenu').style.display='block';
+  panicStop();
+}
+function showIntro(){
+  hideAll();
+  introIdx=0;
+  document.getElementById('introScreen').style.display='block';
+  renderIntro();
+}
+function showRoulette(){
+  hideAll();
+  document.getElementById('rouletteArea').style.display='block';
+  drawWheel(rouletteSegments,-1);
+}
+function showPanic(){
+  hideAll();
+  document.getElementById('panicArea').style.display='block';
+  resetPanicUI();
+}
+
+/* ══════════════════════════════════
+   INTRO DATA
+══════════════════════════════════ */
+const INTRO_CARDS=[
+  {
+    cls:"water-card",icon:"💧",nameCls:"water-txt",name:"EXTINTOR DE AGUA",
+    tagline:"Clase A · Sólidos combustibles",
+    desc:"El extintor de agua enfría el material en combustión, eliminando el calor y apagando el fuego. Es el más común para materiales sólidos como madera, papel, tela y cartón.",
+    yes:["✅ Madera y papel","✅ Tela y cartón","✅ Plásticos sólidos"],
+    no:["🚫 Fuegos eléctricos","🚫 Aceites y grasas","🚫 Líquidos inflamables"]
+  },
+  {
+    cls:"co2-card",icon:"❄️",nameCls:"co2-txt",name:"EXTINTOR CO₂",
+    tagline:"Clase B/C · Eléctrico y líquidos",
+    desc:"El dióxido de carbono desplaza el oxígeno y sofoca el fuego sin dejar residuo. Es dieléctrico (no conduce electricidad), por lo que es seguro en equipos energizados.",
+    yes:["✅ Equipos eléctricos","✅ Solventes y líquidos","✅ Laboratorios"],
+    no:["🚫 Materiales sólidos","🚫 Espacios abiertos (se dispersa)","🚫 Metales en combustión"]
+  },
+  {
+    cls:"pqs-card",icon:"🧡",nameCls:"pqs-txt",name:"EXTINTOR PQS",
+    tagline:"Clase A/B · Polvo Químico Seco",
+    desc:"El Polvo Químico Seco interrumpe la reacción química del fuego. Es versátil y muy eficaz, pero deja residuo en polvo que puede dañar equipos delicados. Ideal en vehículos y talleres.",
+    yes:["✅ Combustibles líquidos","✅ Vehículos","✅ Talleres industriales"],
+    no:["🚫 Equipos eléctricos delicados","🚫 Cocinas con aceite","🚫 Ambientes limpios o laboratorios"]
+  },
+  {
+    cls:"co2k-card",icon:"🍳",nameCls:"co2k-txt",name:"EXTINTOR CLASE K",
+    tagline:"Clase K · Aceites y grasas de cocina",
+    desc:"Diseñado específicamente para aceites y grasas vegetales o animales a alta temperatura. Aplica un agente que saponifica (solidifica) la grasa y sofoca las llamas sin provocar salpicaduras explosivas.",
+    yes:["✅ Freidoras industriales","✅ Cocinas de restaurant","✅ Aceites y grasas calientes"],
+    no:["🚫 NUNCA usar agua en aceite","🚫 Equipos eléctricos","🚫 Solventes inflamables"]
+  }
+];
+
+let introIdx=0;
+function renderIntro(){
+  const dots=document.getElementById('introDots');
+  dots.innerHTML=INTRO_CARDS.map((_,i)=>`<div class="intro-dot${i===introIdx?' active':''}"></div>`).join('');
+  const c=INTRO_CARDS[introIdx];
+  document.getElementById('introCard').innerHTML=`
+    <div class="intro-card ${c.cls}">
+      <span class="intro-big-icon">${c.icon}</span>
+      <div class="intro-ext-name ${c.nameCls}">${c.name}</div>
+      <div class="intro-tagline">${c.tagline}</div>
+      <div class="intro-desc">${c.desc}</div>
+      <div class="intro-tags">
+        ${c.yes.map(t=>`<span class="intro-tag tag-yes">${t}</span>`).join('')}
+        ${c.no.map(t=>`<span class="intro-tag tag-no">${t}</span>`).join('')}
+      </div>
+    </div>`;
+  const isLast=introIdx===INTRO_CARDS.length-1;
+  document.getElementById('introNav').innerHTML=`
+    ${introIdx>0?`<button class="intro-prev-btn" onclick="introGo(-1)">← Anterior</button>`:''}
+    ${isLast
+      ?`<button class="intro-start-btn" onclick="startGame()">🔥 ¡Comenzar!</button>`
+      :`<button class="intro-next-btn" onclick="introGo(1)">Siguiente →</button>`}`;
+}
+function introGo(dir){
+  introIdx=Math.min(Math.max(introIdx+dir,0),INTRO_CARDS.length-1);
+  renderIntro();
+}
+function startGame(){
+  hideAll();
+  document.getElementById('gameArea').style.display='block';
+  init();
+}
+
+/* ══════════════════════════════════
+   QUIZ GAME DATA
+══════════════════════════════════ */
+const ALL_QUESTIONS=[
+  {type:"Incendio Eléctrico",emoji:"⚡",classTag:"CLASE C",pill:"pill-c",pillText:"Clase C · Equipos eléctricos",desc:"Un tablero eléctrico comenzó a arder por un cortocircuito. El área está bajo tensión.",correct:"CO2",options:["Agua","CO2","PQS"],success:"El CO₂ no conduce electricidad y no daña los equipos. ¡Elección perfecta!",fail:"El agua conduce electricidad y puede causar electrocución. Aquí se necesita CO₂."},
+  {type:"Fuego de Papelería",emoji:"📄",classTag:"CLASE A",pill:"pill-a",pillText:"Clase A · Sólidos combustibles",desc:"Papeles y cartones almacenados en la bodega se incendiaron. Sin riesgo eléctrico.",correct:"Agua",options:["Agua","CO2","PQS"],success:"¡Correcto! El agua enfría y empapa los materiales sólidos. Ideal para Clase A.",fail:"El mejor extintor para materiales sólidos como papel es el de agua. CO₂ no enfría la brasa."},
+  {type:"Derrame de Gasolina",emoji:"⛽",classTag:"CLASE B",pill:"pill-b",pillText:"Clase B · Líquidos inflamables",desc:"Un bidón de gasolina se volcó y el combustible se prendió en el taller mecánico.",correct:"PQS",options:["Agua","CO2","PQS"],success:"¡Correcto! El PQS cubre la superficie e interrumpe la reacción química. Ideal para Clase B.",fail:"El agua puede dispersar el combustible y extender el fuego. El PQS es lo indicado aquí."},
+  {type:"Aceite en Cocina",emoji:"🍳",classTag:"CLASE K",pill:"pill-k",pillText:"Clase K · Aceites de cocina",desc:"Una freidora industrial se incendió en la cocina del casino. Llamas altas sobre la sartén.",correct:"CO2/K",options:["Agua","CO2/K","PQS"],success:"¡Correcto! CO₂ o extintor Clase K sofocan sin salpicadura. Nunca agua en aceite caliente.",fail:"Agua en aceite caliente provoca explosión de vapor. Se requiere CO₂ o extintor Clase K."},
+  {type:"Archivo en Llamas",emoji:"🗄️",classTag:"CLASE A",pill:"pill-a",pillText:"Clase A · Sólidos combustibles",desc:"Cajas de madera y archivos de documentos se incendiaron en el depósito. Sin riesgo eléctrico.",correct:"Agua",options:["Agua","CO2","PQS"],success:"¡Bien! El agua es lo más eficaz aquí: enfría la brasa y evita reignición en materiales sólidos.",fail:"Para madera y papel, el agua es lo mejor: penetra y enfría la brasa. PQS no evita reignición."},
+  {type:"Laboratorio Químico",emoji:"🧪",classTag:"CLASE B/C",pill:"pill-b",pillText:"Clase B/C · Solventes + Electricidad",desc:"Solventes inflamables cerca de equipos eléctricos encendidos comenzaron a arder.",correct:"CO2",options:["Agua","CO2","PQS"],success:"¡Perfecto! CO₂ es seguro en eléctrico y eficaz en líquidos. No deja residuo en el laboratorio.",fail:"CO₂ es la mejor opción: combate el fuego sin conducir electricidad ni contaminar el laboratorio."},
+  {type:"Vehículo en Llamas",emoji:"🚗",classTag:"CLASE B",pill:"pill-b",pillText:"Clase B · Combustible de motor",desc:"Un auto derramó gasolina y prendió. El motor arde pero no hay riesgo de choque eléctrico.",correct:"PQS",options:["Agua","CO2","PQS"],success:"¡Exacto! PQS es el más versátil para vehículos: actúa sobre combustibles y evita reignición.",fail:"PQS es ideal: cubre el área rápido y actúa en Clase A y B, el más común en vehículos."},
+  {type:"Generador Eléctrico",emoji:"🔋",classTag:"CLASE C",pill:"pill-c",pillText:"Clase C · Equipo energizado",desc:"El generador de emergencia del edificio comenzó a arder mientras estaba en pleno funcionamiento.",correct:"CO2",options:["Agua","CO2","PQS"],success:"¡Correcto! CO₂ es el agente dieléctrico por excelencia. Seguro y sin residuo en el equipo.",fail:"Nunca agua ni PQS en equipos eléctricos activos. CO₂ es el único completamente seguro en Clase C."}
+];
+const EXTINGUISHERS={
+  "Agua":{icon:"💧",label:"AGUA",cls:"water"},
+  "CO2":{icon:"❄️",label:"CO₂",cls:"co2"},
+  "PQS":{icon:"🧡",label:"PQS",cls:"pqs"},
+  "CO2/K":{icon:"❄️",label:"CO₂/K",cls:"co2k"},
+};
+
+let questions=[],current=0,score=0,streak=0,correctCount=0,answered=false;
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function init(){
+  questions=shuffle(ALL_QUESTIONS);
+  current=0;score=0;streak=0;correctCount=0;
+  updateScoreUI();loadQuestion();
+}
+function loadQuestion(){
+  answered=false;
+  const q=questions[current];
+  const pct=(current/questions.length)*100;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressLabel').textContent=(current+1)+' / '+questions.length;
+  document.getElementById('classTag').textContent='🏷 '+q.classTag;
+  document.getElementById('fireEmoji').textContent=q.emoji;
+  document.getElementById('fireType').textContent=q.type;
+  document.getElementById('fireDesc').textContent=q.desc;
+  const pill=document.getElementById('typePill');
+  pill.className='type-pill '+q.pill;pill.textContent=q.pillText;
+  document.getElementById('fireCard').classList.add('slide-in');
+  setTimeout(()=>document.getElementById('fireCard').classList.remove('slide-in'),400);
+  const area=document.getElementById('buttonsArea');area.innerHTML='';
+  shuffle(q.options).forEach(opt=>{
+    const e=EXTINGUISHERS[opt];
+    const btn=document.createElement('button');
+    btn.className='opt-btn '+e.cls;
+    btn.innerHTML=`<span class="btn-icon">${e.icon}</span>🧯<br><span class="btn-label">${e.label}</span>`;
+    btn.onclick=()=>checkAnswer(opt,btn);
+    area.appendChild(btn);
+  });
+  const rb=document.getElementById('resultBox');
+  rb.className='result-box';
+  document.getElementById('resultIcon').textContent='';
+  document.getElementById('resultText').textContent='';
+  document.getElementById('nextBtn').style.display='none';
+}
+function checkAnswer(chosen,btn){
+  if(answered)return;answered=true;
+  const q=questions[current];
+  const isCorrect=chosen===q.correct;
+  document.querySelectorAll('#buttonsArea .opt-btn').forEach(b=>{
+    b.disabled=true;
+    const lbl=b.querySelector('.btn-label').textContent;
+    const optKey=Object.keys(EXTINGUISHERS).find(k=>EXTINGUISHERS[k].label===lbl);
+    if(optKey===q.correct) b.classList.add('reveal-correct');
+  });
+  if(isCorrect){btn.classList.add('correct-anim');score+=streak>=2?15:10;streak++;correctCount++;playCorrect();}
+  else{btn.classList.add('wrong-anim');streak=0;score=Math.max(0,score-2);playWrong();}
+  updateScoreUI();
+  const rb=document.getElementById('resultBox');
+  document.getElementById('resultIcon').textContent=isCorrect?'✅':'❌';
+  document.getElementById('resultText').textContent=isCorrect?q.success:q.fail;
+  rb.className='result-box show '+(isCorrect?'ok':'fail');
+  const nb=document.getElementById('nextBtn');
+  nb.style.display='block';
+  nb.textContent=current+1>=questions.length?'Ver resultados 🏆':'Siguiente incendio →';
+}
+function updateScoreUI(){
+  document.getElementById('scoreVal').textContent=score;
+  document.getElementById('streakVal').textContent=streak;
+}
+function nextQuestion(){
+  current++;
+  if(current>=questions.length){showEnd();return;}
+  loadQuestion();
+}
+function showEnd(){
+  document.getElementById('progressFill').style.width='100%';
+  const pct=Math.round((correctCount/questions.length)*100);
+  let ratingText='',trophy='🏆';
+  if(pct===100){ratingText='¡Puntaje perfecto! Eres un <strong>experto brigadista</strong>. 🔥';trophy='🥇';playFanfare();}
+  else if(pct>=75){ratingText='¡Muy bien! Tienes buenas bases para <strong>responder emergencias</strong>. Sigue practicando.';trophy='🏆';}
+  else if(pct>=50){ratingText='Vas por buen camino, pero hay conceptos clave que repasar. <strong>Inténtalo de nuevo.</strong>';trophy='🎯';}
+  else{ratingText='Necesitas reforzar el entrenamiento. <strong>¡La práctica hace al maestro!</strong>';trophy='📚';}
+  document.getElementById('gameArea').innerHTML=`
+    <button class="back-btn" onclick="showMenu()">← Menú principal</button>
+    <div class="end-screen">
+      <span class="trophy">${trophy}</span>
+      <div class="end-title">Entrenamiento Completo</div>
+      <div class="end-score-label">Puntuación final</div>
+      <div class="end-score-val">${score}</div>
+      <div class="end-accuracy">${correctCount} / ${questions.length} respuestas correctas · ${pct}% precisión</div>
+      <div class="rating">${ratingText}</div>
+      <button class="replay-btn" onclick="startGame()">Intentar Nuevamente 🔥</button>
+      <button class="menu-return-btn" onclick="showMenu()">Menú Principal</button>
+    </div>`;
+}
+
+/* ══════════════════════════════════
+   RULETA DE EMERGENCIA
+══════════════════════════════════ */
+const rouletteSegments=[
+  {
+    label:"INCENDIO\nELÉCTRICO",color:"#37474f",textColor:"#90a4ae",icon:"⚡",
+    name:"Incendio Eléctrico",classBadge:"CLASE C",classBadgeStyle:"background:rgba(84,110,122,.2);color:#90a4ae;border:1px solid rgba(84,110,122,.4);",
+    body:"Un cortocircuito desata un incendio en un tablero eléctrico. Los conductores están energizados. Usar agua puede causar electrocución fatal.",
+    steps:[
+      "Corta el suministro eléctrico desde el interruptor principal si es seguro hacerlo.",
+      "Toma el extintor CO₂ más cercano — nunca agua ni PQS en equipos eléctricos activos.",
+      "Mantén distancia de al menos 1 metro y apunta a la base de las llamas.",
+      "Evacua el área y llama a los bomberos aunque el fuego esté controlado.",
+      "No reingrese hasta que un técnico certifique que el área es segura."
+    ]
+  },
+  {
+    label:"DERRAME\nQUÍMICO",color:"#4a148c",textColor:"#ce93d8",icon:"☣️",
+    name:"Derrame Químico",classBadge:"HAZMAT",classBadgeStyle:"background:rgba(74,20,140,.2);color:#ce93d8;border:1px solid rgba(74,20,140,.4);",
+    body:"Un solvente o reactivo peligroso se derramó en el laboratorio. Los vapores son tóxicos e inflamables. La prioridad es contención y evacuación.",
+    steps:[
+      "Alerta al personal del área de inmediato y despeja el espacio.",
+      "Identifica la hoja de seguridad (MSDS/SDS) del químico antes de actuar.",
+      "Si es inflamable, elimina todas las fuentes de ignición.",
+      "Usa EPP completo: guantes, lentes, respirador y mandil antes de contener.",
+      "Llama al coordinador de emergencias. No intentes limpiar sin entrenamiento específico."
+    ]
+  },
+  {
+    label:"FUEGO DE\nCOCINA",color:"#bf360c",textColor:"#ffab91",icon:"🍳",
+    name:"Fuego de Cocina (Clase K)",classBadge:"CLASE K",classBadgeStyle:"background:rgba(85,139,47,.15);color:#8bc34a;border:1px solid rgba(85,139,47,.3);",
+    body:"Una freidora industrial se incendió. El aceite vegetal a alta temperatura produce llamas intensas. Nunca use agua: puede provocar una explosión de vapor.",
+    steps:[
+      "NUNCA arroje agua — el vapor explosivo puede herir a todos en el área.",
+      "Si es seguro, cubra la freidora con una tapa metálica para sofocar.",
+      "Use extintor Clase K o CO₂ si la tapa no está disponible.",
+      "Corta el gas o energía de la freidora.",
+      "Evacua si el fuego no se controla en 30 segundos y llama a bomberos."
+    ]
+  },
+  {
+    label:"INCENDIO\nFORESTAL",color:"#e65100",textColor:"#ffb74d",icon:"🌲",
+    name:"Incendio en Área Verde",classBadge:"CLASE A",classBadgeStyle:"background:rgba(255,85,0,.15);color:#ff7744;border:1px solid rgba(255,85,0,.3);",
+    body:"Vegetación seca en el perímetro de la instalación comenzó a arder. El viento puede propagar las llamas rápidamente hacia las estructuras.",
+    steps:[
+      "Evalúa la dirección del viento antes de acercarte — el fuego viaja en esa dirección.",
+      "Notifica al coordinador de brigada y activa el plan de evacuación preventiva.",
+      "Si hay manguera disponible, empapa el área perimetral para crear cortafuegos.",
+      "No combatas el fuego solo si supera los 2 metros de altura.",
+      "Espera a los bomberos y proporciona acceso al punto de agua más cercano."
+    ]
+  },
+  {
+    label:"PERSONA\nHERIDA",color:"#c62828",textColor:"#ef9a9a",icon:"🩹",
+    name:"Accidente con Heridos",classBadge:"PRIMEROS AUXILIOS",classBadgeStyle:"background:rgba(198,40,40,.15);color:#ef9a9a;border:1px solid rgba(198,40,40,.3);",
+    body:"Un trabajador sufrió una caída o accidente con lesiones visibles. Es prioritario actuar con calma y protocolo correcto para no agravar las heridas.",
+    steps:[
+      "Asegura la escena: retira peligros antes de acercarte al herido.",
+      "Llama al servicio médico de emergencia (o 131 SAMU) de inmediato.",
+      "No muevas al herido si hay sospecha de lesión en cuello o columna.",
+      "Controla hemorragias con presión directa usando material limpio.",
+      "Mantén al herido abrigado y consciente hasta la llegada de los paramédicos."
+    ]
+  },
+  {
+    label:"FUGA DE\nGAS",color:"#1b5e20",textColor:"#a5d6a7",icon:"💨",
+    name:"Fuga de Gas",classBadge:"GAS INFLAMABLE",classBadgeStyle:"background:rgba(27,94,32,.2);color:#a5d6a7;border:1px solid rgba(27,94,32,.4);",
+    body:"Se detecta olor a gas en las instalaciones. El gas acumulado puede detonar con una simple chispa eléctrica. La velocidad de respuesta es crítica.",
+    steps:[
+      "No enciendas ni apagues luces ni aparatos — cualquier chispa puede detonar.",
+      "Abre puertas y ventanas para ventilar el espacio inmediatamente.",
+      "Cierra la llave de paso de gas principal si está a tu alcance sin riesgo.",
+      "Evacua a todos del área y no uses el ascensor.",
+      "Llama a la empresa de gas o bomberos desde el exterior del edificio."
+    ]
+  },
+  {
+    label:"SISMO /\nEVACUACIÓN",color:"#4e342e",textColor:"#bcaaa4",icon:"🏃",
+    name:"Sismo y Evacuación",classBadge:"EVACUACIÓN",classBadgeStyle:"background:rgba(78,52,46,.2);color:#bcaaa4;border:1px solid rgba(78,52,46,.4);",
+    body:"Ocurrió un sismo o se activó la alarma de evacuación general. Todo el personal debe abandonar el edificio ordenadamente y en silencio.",
+    steps:[
+      "Durante el sismo: protégete bajo mesas sólidas, lejos de ventanas. No corras.",
+      "Al cesar el movimiento: evalúa visualmente tu área antes de moverte.",
+      "Sigue las rutas de evacuación señalizadas — no uses el ascensor.",
+      "Reúnete en el punto de encuentro designado para control de personas.",
+      "No reingrese hasta que el coordinador de emergencias declare el área segura."
+    ]
+  },
+  {
+    label:"FUEGO EN\nVEHÍCULO",color:"#f57f17",textColor:"#ffe082",icon:"🚗",
+    name:"Vehículo en Llamas",classBadge:"CLASE B",classBadgeStyle:"background:rgba(255,170,0,.15);color:#ffcc44;border:1px solid rgba(255,170,0,.3);",
+    body:"Un vehículo en el estacionamiento está ardiendo. El riesgo de explosión del tanque es real si las llamas alcanzan el área del combustible.",
+    steps:[
+      "Aleja a todas las personas al menos 30 metros del vehículo.",
+      "Llama a bomberos inmediatamente — el tanque puede explotar.",
+      "Si hay extintor PQS grande, úsalo en la base de las llamas del motor desde distancia segura.",
+      "No abras el capó con llamas activas — el oxígeno avivará el incendio.",
+      "Corta el tráfico de acceso y espera a los bomberos para el control final."
+    ]
+  }
+];
+
+let rouletteSpinning=false;
+let rouletteCurrentSeg=-1;
+
+function drawWheel(segments,highlightIdx){
+  const canvas=document.getElementById('rouletteCanvas');
+  const ctx=canvas.getContext('2d');
+  const cx=140,cy=140,r=134;
+  const n=segments.length;
+  const arc=(2*Math.PI)/n;
+  ctx.clearRect(0,0,280,280);
+
+  // Draw shadow ring
+  ctx.beginPath();
+  ctx.arc(cx,cy,r+4,0,2*Math.PI);
+  ctx.fillStyle='rgba(0,0,0,0.5)';
+  ctx.fill();
+
+  segments.forEach((seg,i)=>{
+    const start=-Math.PI/2+i*arc;
+    const end=start+arc;
+
+    // Slice
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,start,end);
+    ctx.closePath();
+    ctx.fillStyle=i===highlightIdx?lightenColor(seg.color):seg.color;
+    ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.4)';
+    ctx.lineWidth=2;
+    ctx.stroke();
+
+    // Icon
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(start+arc/2);
+    ctx.font='18px serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(seg.icon,r*0.62,0);
+
+    // Label
+    ctx.font='bold 8.5px Barlow,sans-serif';
+    ctx.fillStyle=seg.textColor;
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    const lines=seg.label.split('\n');
+    lines.forEach((ln,li)=>{
+      ctx.fillText(ln,r*0.85,(li-(lines.length-1)/2)*11);
+    });
+    ctx.restore();
+  });
+
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(cx,cy,22,0,2*Math.PI);
+  ctx.fillStyle='#0e0e0e';
+  ctx.fill();
+  ctx.strokeStyle='#333';
+  ctx.lineWidth=2;
+  ctx.stroke();
+  ctx.font='18px serif';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText('🧯',cx,cy);
+}
+
+function lightenColor(hex){
+  // Simple lighten by blending toward white
+  const r=parseInt(hex.slice(1,3),16);
+  const g=parseInt(hex.slice(3,5),16);
+  const b=parseInt(hex.slice(5,7),16);
+  const factor=1.4;
+  return `rgb(${Math.min(255,r*factor)},${Math.min(255,g*factor)},${Math.min(255,b*factor)})`;
+}
+
+function spinRoulette(){
+  if(rouletteSpinning)return;
+  rouletteSpinning=true;
+  unlockAC();
+  const btn=document.getElementById('spinBtn');
+  btn.disabled=true;
+  btn.textContent='🌀 GIRANDO...';
+
+  // Close result
+  const res=document.getElementById('rouletteResult');
+  res.classList.remove('open');
+
+  const n=rouletteSegments.length;
+  const arc=(2*Math.PI)/n;
+  const totalRotation=(Math.PI*2*6)+(Math.random()*Math.PI*2); // 6+ full spins
+  const duration=4000;
+  const startTime=performance.now();
+  let lastTickSeg=-1;
+
+  function animate(now){
+    const elapsed=Math.min(now-startTime,duration);
+    // Ease out cubic
+    const t=elapsed/duration;
+    const eased=1-Math.pow(1-t,3);
+    const angle=totalRotation*eased;
+
+    // Which segment is at top?
+    const normalized=((angle%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+    const segAtTop=Math.floor(((Math.PI*2-normalized+Math.PI/2)%(Math.PI*2))/arc)%n;
+
+    // Tick sound on new segment
+    if(segAtTop!==lastTickSeg){playTick();lastTickSeg=segAtTop;}
+
+    // Redraw with rotation
+    const canvas=document.getElementById('rouletteCanvas');
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,280,280);
+    ctx.save();
+    ctx.translate(140,140);
+    ctx.rotate(angle);
+    ctx.translate(-140,-140);
+    drawWheel2(rouletteSegments,ctx,elapsed>=duration?segAtTop:-1);
+    ctx.restore();
+
+    if(elapsed<duration){
+      requestAnimationFrame(animate);
+    } else {
+      rouletteCurrentSeg=segAtTop;
+      rouletteSpinning=false;
+      btn.disabled=false;
+      btn.textContent='🎰 GIRAR OTRA VEZ';
+
+      // Draw final static (highlighted)
+      const canvas2=document.getElementById('rouletteCanvas');
+      const ctx2=canvas2.getContext('2d');
+      ctx2.clearRect(0,0,280,280);
+      ctx2.save();
+      ctx2.translate(140,140);
+      ctx2.rotate(angle);
+      ctx2.translate(-140,-140);
+      drawWheel2(rouletteSegments,ctx2,segAtTop);
+      ctx2.restore();
+
+      showRouletteResult(segAtTop);
+      playFanfare();
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function drawWheel2(segments,ctx,highlightIdx){
+  const cx=140,cy=140,r=134;
+  const n=segments.length;
+  const arc=(2*Math.PI)/n;
+  ctx.beginPath();ctx.arc(cx,cy,r+4,0,2*Math.PI);ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fill();
+  segments.forEach((seg,i)=>{
+    const start=-Math.PI/2+i*arc,end=start+arc;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,end);ctx.closePath();
+    ctx.fillStyle=i===highlightIdx?lightenColor(seg.color):seg.color;
+    ctx.fill();ctx.strokeStyle='rgba(0,0,0,0.4)';ctx.lineWidth=2;ctx.stroke();
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(start+arc/2);
+    ctx.font='18px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(seg.icon,r*0.62,0);
+    ctx.font='bold 8.5px Barlow,sans-serif';ctx.fillStyle=seg.textColor;
+    const lines=seg.label.split('\n');
+    lines.forEach((ln,li)=>{ctx.fillText(ln,r*0.85,(li-(lines.length-1)/2)*11);});
+    ctx.restore();
+  });
+  ctx.beginPath();ctx.arc(cx,cy,22,0,2*Math.PI);ctx.fillStyle='#0e0e0e';ctx.fill();
+  ctx.strokeStyle='#333';ctx.lineWidth=2;ctx.stroke();
+  ctx.font='18px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🧯',cx,cy);
+}
+
+function showRouletteResult(idx){
+  const seg=rouletteSegments[idx];
+  document.getElementById('rResultIcon').textContent=seg.icon;
+  document.getElementById('rResultName').textContent=seg.name;
+  const cls=document.getElementById('rResultClass');
+  cls.textContent=seg.classBadge;cls.style.cssText=seg.classBadgeStyle;
+  document.getElementById('rResultBody').textContent=seg.body;
+  const stepsEl=document.getElementById('rResultSteps');
+  stepsEl.innerHTML=seg.steps.map((s,i)=>`
+    <div class="roulette-step">
+      <div class="roulette-step-num">${i+1}</div>
+      <div class="roulette-step-text">${s}</div>
+    </div>`).join('');
+  document.getElementById('rouletteResult').classList.add('open');
+}
+
+/* ══════════════════════════════════
+   SIMULADOR DE PÁNICO
+══════════════════════════════════ */
+const PANIC_SCENARIOS=[
+  {
+    name:"⚡ Tablero eléctrico en llamas",
+    label:"INCENDIO ELÉCTRICO ACTIVO",
+    steps:[
+      {
+        q:"El tablero de distribución principal está ardiendo. ¿Cuál es tu primer paso?",
+        sub:"Tienes compañeros trabajando en la sala adyacente.",
+        options:[
+          {text:"🧯 Buscar extintor CO₂ de inmediato",correct:true},
+          {text:"💧 Usar manguera de agua cercana",correct:false},
+          {text:"📱 Tomar fotos para el reporte",correct:false},
+          {text:"🚪 Esperar que el fuego se apague solo",correct:false}
+        ],
+        explain:"El primer paso es alertar y buscar el extintor correcto. Nunca agua en incendios eléctricos."
+      },
+      {
+        q:"¿Con qué extintor atacas el fuego del tablero energizado?",
+        sub:"Tienes disponibles: Agua, CO₂ y PQS.",
+        options:[
+          {text:"❄️ CO₂ — no conduce electricidad",correct:true},
+          {text:"🧡 PQS — el más versátil",correct:false},
+          {text:"💧 Agua — más abundante",correct:false},
+          {text:"🙅 Ninguno, llamo solo a bomberos",correct:false}
+        ],
+        explain:"CO₂ es el único dieléctrico. PQS puede dañar equipos; el agua electrocuta."
+      },
+      {
+        q:"El fuego está controlado, pero el tablero sigue energizado. ¿Qué haces?",
+        sub:"Hay humo visible y olor a quemado.",
+        options:[
+          {text:"🔌 Cortar la energía desde el breaker general",correct:true},
+          {text:"✋ Tocar los cables para revisarlos",correct:false},
+          {text:"💨 Ventilar la sala y volver al trabajo",correct:false},
+          {text:"🪟 Abrir ventanas y dejar pasar el humo",correct:false}
+        ],
+        explain:"Cortar la energía evita reignición y permite que un técnico revise seguro."
+      }
+    ]
+  },
+  {
+    name:"🍳 Incendio en cocina industrial",
+    label:"FUEGO CLASE K — COCINA",
+    steps:[
+      {
+        q:"La freidora explota en llamas. El aceite está hirviendo. ¿Qué haces primero?",
+        sub:"Hay 3 cocineros en la cocina y el fuego crece rápido.",
+        options:[
+          {text:"🚨 Gritar '¡FUEGO!' y evacuar la cocina",correct:true},
+          {text:"💧 Arrojar agua sobre la freidora",correct:false},
+          {text:"👀 Observar si se apaga solo",correct:false},
+          {text:"📞 Llamar al jefe antes de actuar",correct:false}
+        ],
+        explain:"Alertar y evacuar es siempre la prioridad. El agua en aceite caliente provoca explosión de vapor."
+      },
+      {
+        q:"Un compañero quiere tirar agua. ¿Qué le dices?",
+        sub:"Él insiste que el agua apaga todo tipo de fuego.",
+        options:[
+          {text:"🚫 '¡No! El agua explota en aceite caliente'",correct:true},
+          {text:"👍 'Bien, es la forma más rápida'",correct:false},
+          {text:"🤷 'Quizás un poco nomás'",correct:false},
+          {text:"🔇 No dices nada para no discutir",correct:false}
+        ],
+        explain:"Agua en aceite caliente causa una reacción violenta de vapor que lanza aceite ardiente."
+      },
+      {
+        q:"¿Qué extintor usas en la freidora?",
+        sub:"Tienes CO₂ Clase K y PQS disponibles.",
+        options:[
+          {text:"❄️ CO₂ o extintor Clase K",correct:true},
+          {text:"🧡 PQS — el más común",correct:false},
+          {text:"💧 Agua con jabón",correct:false},
+          {text:"🪣 Arena seca",correct:false}
+        ],
+        explain:"CO₂ sofoca sin salpicadura. Clase K saponifica la grasa. PQS puede dispersar el aceite."
+      }
+    ]
+  },
+  {
+    name:"💨 Fuga de gas en bodega",
+    label:"GAS INFLAMABLE DETECTADO",
+    steps:[
+      {
+        q:"Hueles fuertemente a gas al entrar a la bodega. ¿Qué haces?",
+        sub:"La sala está cerrada y el olor es intenso.",
+        options:[
+          {text:"🚪 Salir sin encender ni apagar nada",correct:true},
+          {text:"💡 Encender la luz para ver mejor",correct:false},
+          {text:"📱 Llamar desde adentro al jefe",correct:false},
+          {text:"🔍 Buscar la fuga con un encendedor",correct:false}
+        ],
+        explain:"Cualquier chispa puede detonar el gas acumulado. Sal primero, luego actúa."
+      },
+      {
+        q:"Ya estás afuera. ¿Cuál es tu siguiente paso?",
+        sub:"Hay personas aún trabajando en el edificio.",
+        options:[
+          {text:"🔔 Activar la alarma y evacuar el edificio",correct:true},
+          {text:"🔧 Volver a buscar la válvula de gas",correct:false},
+          {text:"⏳ Esperar 5 minutos y revisas de nuevo",correct:false},
+          {text:"🪟 Solo abres ventanas y listo",correct:false}
+        ],
+        explain:"La evacuación total es prioritaria. No regreses hasta que bomberos despeje el área."
+      },
+      {
+        q:"¿Dónde llamas reportar la fuga?",
+        sub:"Tienes poco tiempo antes de que alguien entre al área.",
+        options:[
+          {text:"🚒 Bomberos y empresa de gas",correct:true},
+          {text:"📧 Envías un correo al jefe de turno",correct:false},
+          {text:"🔕 No llamas, ya evacuaste el área",correct:false},
+          {text:"📱 Publicas en el grupo de WhatsApp",correct:false}
+        ],
+        explain:"Bomberos tiene equipos especializados en gases. La empresa corta el suministro."
+      }
+    ]
+  },
+  {
+    name:"🩹 Accidente con herido grave",
+    label:"EMERGENCIA MÉDICA ACTIVA",
+    steps:[
+      {
+        q:"Un compañero cayó de una escalera y está en el suelo. ¿Qué haces primero?",
+        sub:"Está consciente pero con dolor intenso en el cuello.",
+        options:[
+          {text:"📞 Llamar al SAMU y no moverlo",correct:true},
+          {text:"🤸 Moverlo al lado para que esté cómodo",correct:false},
+          {text:"💧 Darle agua de inmediato",correct:false},
+          {text:"🚗 Llevarlo al hospital en tu auto",correct:false}
+        ],
+        explain:"Nunca muevas a alguien con posible lesión espinal. Llama al SAMU y espera."
+      },
+      {
+        q:"Está sangrando abundantemente del brazo. ¿Qué haces?",
+        sub:"No hay paramédicos aún en el lugar.",
+        options:[
+          {text:"🩹 Presionar firmemente con tela limpia",correct:true},
+          {text:"🚿 Lavar la herida con agua",correct:false},
+          {text:"👀 Observar si se detiene sola",correct:false},
+          {text:"❌ No tocar porque puede doler",correct:false}
+        ],
+        explain:"La presión directa es el método correcto para controlar hemorragias en primeros auxilios."
+      },
+      {
+        q:"Llega el SAMU. ¿Qué información les das?",
+        sub:"Los paramédicos preguntan qué pasó.",
+        options:[
+          {text:"📋 Mecanismo del accidente, síntomas y tiempo",correct:true},
+          {text:"🗣️ Solo el nombre del herido",correct:false},
+          {text:"🤐 Nada, ellos deben evaluarlo solos",correct:false},
+          {text:"📱 Les muestras fotos de Instagram",correct:false}
+        ],
+        explain:"Reporta: cómo cayó, qué se queja, cuánto tiempo lleva así y si perdió conciencia."
+      }
+    ]
+  }
+];
+
+let panicScenario=null;
+let panicStepIdx=0;
+let panicScore=0;
+let panicTimerId=null;
+let panicTimeLeft=15;
+let panicAnswered=false;
+const PANIC_TIME=15;
+
+function resetPanicUI(){
+  document.getElementById('panicIdle').style.display='block';
+  document.getElementById('panicCountdown').style.display='none';
+  document.getElementById('panicScenario').style.display='none';
+  document.getElementById('panicTimeout').style.display='none';
+  document.getElementById('panicDebrief').style.display='none';
+}
+
+function startPanic(){
+  unlockAC();
+  playAlarm();
+  panicScore=0;
+  panicStepIdx=0;
+  // Random scenario
+  panicScenario=PANIC_SCENARIOS[Math.floor(Math.random()*PANIC_SCENARIOS.length)];
+
+  document.getElementById('panicIdle').style.display='none';
+  document.getElementById('panicCountdown').style.display='block';
+
+  let count=3;
+  document.getElementById('countNum').textContent=count;
+  const cd=setInterval(()=>{
+    count--;
+    if(count>0){
+      document.getElementById('countNum').textContent=count;
+      document.getElementById('countNum').style.animation='none';
+      void document.getElementById('countNum').offsetWidth;
+      document.getElementById('countNum').style.animation='countPop .9s ease-in-out';
+    } else {
+      clearInterval(cd);
+      document.getElementById('panicCountdown').style.display='none';
+      loadPanicStep();
+    }
+  },900);
+}
+
+function loadPanicStep(){
+  panicAnswered=false;
+  const step=panicScenario.steps[panicStepIdx];
+  const total=panicScenario.steps.length;
+
+  document.getElementById('panicScenario').style.display='block';
+  document.getElementById('panicTimeout').style.display='none';
+  document.getElementById('panicScenLabel').textContent=panicScenario.label;
+  document.getElementById('panicScenName').textContent=panicScenario.name;
+
+  // Step dots
+  const dotsEl=document.getElementById('panicStepDots');
+  dotsEl.innerHTML=Array.from({length:total},(_,i)=>`
+    <div class="panic-step-dot ${i<panicStepIdx?'done':i===panicStepIdx?'current':''}"></div>`).join('');
+
+  document.getElementById('panicQ').textContent=step.q;
+  document.getElementById('panicQSub').textContent=step.sub;
+
+  // Options
+  const optEl=document.getElementById('panicOptions');
+  const letters=['A','B','C','D'];
+  const shuffled=shuffle([...step.options.map((o,i)=>({...o,origIdx:i}))]);
+  optEl.innerHTML=shuffled.map((opt,i)=>`
+    <button class="panic-opt" onclick="checkPanicAnswer(${opt.correct},this,'${escStr(step.explain)}')">
+      <span class="panic-opt-letter">${letters[i]}</span>
+      ${opt.text}
+    </button>`).join('');
+
+  // Timer
+  startPanicTimer(step.explain);
+}
+
+function escStr(s){return s.replace(/'/g,"\\'")}
+
+function startPanicTimer(explain){
+  panicTimeLeft=PANIC_TIME;
+  updateTimerUI();
+  clearInterval(panicTimerId);
+  panicTimerId=setInterval(()=>{
+    panicTimeLeft--;
+    updateTimerUI();
+    if(panicTimeLeft<=5) playTick();
+    if(panicTimeLeft<=0){
+      clearInterval(panicTimerId);
+      if(!panicAnswered){
+        panicAnswered=true;
+        showTimeout(explain);
+      }
+    }
+  },1000);
+}
+
+function updateTimerUI(){
+  const pct=(panicTimeLeft/PANIC_TIME)*100;
+  document.getElementById('panicTimerFill').style.width=pct+'%';
+  document.getElementById('panicTimerLabel').textContent=panicTimeLeft+'s';
+  document.getElementById('panicTimerFill').style.background=
+    panicTimeLeft<=5
+      ? 'linear-gradient(90deg,#b71c1c,#f44336)'
+      : panicTimeLeft<=9
+        ? 'linear-gradient(90deg,#e65100,#ff8f00)'
+        : 'linear-gradient(90deg,var(--panic-red),var(--panic-amber))';
+}
+
+function showTimeout(explain){
+  clearInterval(panicTimerId);
+  document.getElementById('panicScenario').style.display='none';
+  document.getElementById('panicTimeout').style.display='block';
+  playWrong();
+
+  // Reveal correct on timeout button
+  document.getElementById('panicTimeout').querySelector('.panic-timeout-btn').onclick=()=>panicNextStep(true,explain);
+}
+
+function checkPanicAnswer(isCorrect, btn, explain){
+  if(panicAnswered)return;
+  panicAnswered=true;
+  clearInterval(panicTimerId);
+  unlockAC();
+
+  // Disable all
+  document.querySelectorAll('.panic-opt').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent.trim().includes(btn.textContent.trim().substring(1))) return;
+  });
+  document.querySelectorAll('.panic-opt').forEach(b=>{b.disabled=true;});
+
+  if(isCorrect){
+    btn.classList.add('correct-anim');
+    const bonus=Math.ceil(panicTimeLeft/PANIC_TIME*10);
+    panicScore+=20+bonus;
+    playCorrect();
+  } else {
+    btn.classList.add('wrong-anim');
+    panicScore=Math.max(0,panicScore-5);
+    // Reveal correct
+    document.querySelectorAll('.panic-opt').forEach(b=>{
+      if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes('true')){
+        b.classList.add('reveal-correct');
+      }
+    });
+    playWrong();
+  }
+
+  // Show explain briefly then next
+  document.getElementById('panicQSub').textContent='💡 '+explain;
+  setTimeout(()=>panicNextStep(false),2200);
+}
+
+function panicNextStep(timedOut, explain){
+  panicStepIdx++;
+  const total=panicScenario.steps.length;
+
+  document.getElementById('panicTimeout').style.display='none';
+
+  if(panicStepIdx>=total){
+    showPanicDebrief();
+    return;
+  }
+  loadPanicStep();
+}
+
+function showPanicDebrief(){
+  document.getElementById('panicScenario').style.display='none';
+  document.getElementById('panicDebrief').style.display='block';
+
+  const maxScore=panicScenario.steps.length*30;
+  const pct=Math.round((panicScore/maxScore)*100);
+
+  let icon='🎖️',msg='',color=var_amber;
+  if(pct>=80){
+    icon='🏆';
+    msg='<strong>¡Rendimiento sobresaliente!</strong> Tu respuesta rápida y correcta en un incendio real puede salvar vidas. Eres un activo valioso para tu brigada.';
+    playFanfare();
+  } else if(pct>=50){
+    icon='🎯';
+    msg='<strong>Buen desempeño bajo presión.</strong> Acertaste las decisiones críticas pero hay margen para mejorar la velocidad. Practica los protocolos semanalmente.';
+  } else {
+    icon='📚';
+    msg='<strong>Necesitas reforzar los protocolos.</strong> En una emergencia real, la duda puede costar vidas. Repasa los procedimientos y vuelve a simular.';
+  }
+
+  document.getElementById('panicDebriefIcon').textContent=icon;
+  document.getElementById('panicDebriefScore').textContent=panicScore;
+  document.getElementById('panicDebriefSub').textContent=`de ${maxScore} puntos posibles · ${pct}% efectividad`;
+  document.getElementById('panicDebriefMsg').innerHTML=msg;
+}
+
+const var_amber='#ffaa00';
+
+function restartPanic(){
+  panicStepIdx=0;panicScore=0;
+  document.getElementById('panicDebrief').style.display='none';
+  document.getElementById('panicIdle').style.display='block';
+}
+
+function panicStop(){
+  clearInterval(panicTimerId);
+}
+
+/* ── Init ── */
+// Draw wheel on load (static)
+window.addEventListener('load',()=>{
+  if(document.getElementById('rouletteCanvas')){
+    drawWheel(rouletteSegments,-1);
+  }
+});
+</script>
+</body>
+</html>
